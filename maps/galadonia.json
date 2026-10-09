@@ -1,0 +1,104 @@
+{
+  "format": "equinox-map",
+  "version": 1,
+  "name": "Galadonia",
+  "grid": {
+    "width": 960,
+    "height": 640,
+    "tileSize": 32
+  },
+  "rooms": [
+    {
+      "x": 8,
+      "y": 5,
+      "width": 9,
+      "height": 9,
+      "points": [
+        {
+          "x": 10,
+          "y": 5
+        },
+        {
+          "x": 15,
+          "y": 5
+        },
+        {
+          "x": 15,
+          "y": 7
+        },
+        {
+          "x": 17,
+          "y": 7
+        },
+        {
+          "x": 17,
+          "y": 12
+        },
+        {
+          "x": 15,
+          "y": 12
+        },
+        {
+          "x": 15,
+          "y": 14
+        },
+        {
+          "x": 10,
+          "y": 14
+        },
+        {
+          "x": 10,
+          "y": 12
+        },
+        {
+          "x": 8,
+          "y": 12
+        },
+        {
+          "x": 8,
+          "y": 7
+        },
+        {
+          "x": 10,
+          "y": 7
+        }
+      ],
+      "shape": "polygon",
+      "name": "Room 1",
+      "pois": [
+        {
+          "x": 4.5,
+          "y": 4.5,
+          "type": "ladder",
+          "color": "white"
+        }
+      ],
+      "doors": [
+        {
+          "x": 0,
+          "y": 4.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 4.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 9,
+          "y": 4.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 4.5,
+          "y": 9,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ]
+    }
+  ]
+}
