@@ -1,2 +1,3 @@
 # equinox-map-generator
-web app for creating maps for the SNES game equinox
+This is a web app intended to create maps while playing the game equinox to keep track of levels.
+You define rooms and add POI to them.
