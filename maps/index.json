@@ -1,6 +1,8 @@
 {
   "maps": [
-    "name": "Galadonia",
-    "file": "galadonia.json"
+    {
+      "name": "Galadonia",
+      "file": "galadonia.json"
+    }
   ]
 }
