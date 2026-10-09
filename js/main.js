@@ -623,7 +623,11 @@ async function init() {
       if (!response.ok) throw new Error(`Unable to load ${selectedMap.textContent} (${response.status}).`);
       const contentLength = Number(response.headers.get('content-length'));
       if (contentLength > 2 * 1024 * 1024) throw new Error('Map files must be 2 MB or smaller.');
-      const mapData = await response.json();
+      const contents = await response.text();
+      if (new TextEncoder().encode(contents).length > 2 * 1024 * 1024) {
+        throw new Error('Map files must be 2 MB or smaller.');
+      }
+      const mapData = JSON.parse(contents);
       const loadedRooms = validateMapData(mapData, canvas, config.itemColors, config.doorColors);
       rooms.splice(0, rooms.length, ...loadedRooms);
       document.getElementById('map-name').value = mapData.name || selectedMap.textContent;
