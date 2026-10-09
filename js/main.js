@@ -366,10 +366,11 @@ function isValidShape(points, canvas) {
   return area !== 0;
 }
 
-function createMapData(canvas) {
+function createMapData(canvas, name) {
   return {
     format: 'equinox-map',
     version: 1,
+    name,
     grid: { width: canvas.width, height: canvas.height, tileSize: TILE },
     rooms: rooms.map(room => ({
       x: room.x,
@@ -389,6 +390,7 @@ function validateMapData(data, canvas, itemColors, doorColors) {
   const invalid = () => { throw new Error('The selected file is not a valid Equinox map.'); };
   if (!data || typeof data !== 'object' || Array.isArray(data) ||
     data.format !== 'equinox-map' || data.version !== 1 ||
+    (data.name !== undefined && (typeof data.name !== 'string' || !data.name.trim() || data.name.length > 100)) ||
     data.grid?.width !== canvas.width || data.grid?.height !== canvas.height ||
     data.grid?.tileSize !== TILE || !Array.isArray(data.rooms) || data.rooms.length > 1000) invalid();
 
@@ -449,6 +451,11 @@ function validateMapData(data, canvas, itemColors, doorColors) {
 
 function createRectangle(bounds, name) {
   return { ...bounds, points: rectanglePoints(bounds), shape: 'rectangle', name, pois: [], doors: [] };
+}
+
+function getMapFilename(name) {
+  return `${name.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-').replace(/^-|-$/g, '')}.json`;
 }
 
 function getDefaultPoiColor(type, itemColors) {
@@ -554,28 +561,72 @@ async function init() {
   updateRoomControls(config.itemColors);
 
   document.getElementById('save-map').addEventListener('click', () => {
-    const file = new Blob([JSON.stringify(createMapData(canvas), null, 2)], { type: 'application/json' });
+    const nameInput = document.getElementById('map-name');
+    const name = nameInput.value.trim();
+    const filename = getMapFilename(name);
+    const status = document.getElementById('map-status');
+    if (!name || filename === '.json') {
+      status.textContent = 'Enter a map name containing at least one letter or number.';
+      nameInput.focus();
+      return;
+    }
+    const file = new Blob([JSON.stringify(createMapData(canvas, name), null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(file);
     const download = document.createElement('a');
     download.href = url;
-    download.download = 'equinox-map.json';
+    download.download = filename;
     download.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    document.getElementById('map-status').textContent = 'Map saved to a JSON file.';
+    status.textContent = `Downloaded ${filename}. Add it to the maps folder and list it in maps/index.json to load it here.`;
   });
 
-  const mapFileInput = document.getElementById('map-file');
-  document.getElementById('load-map').addEventListener('click', () => mapFileInput.click());
-  mapFileInput.addEventListener('change', async () => {
-    const file = mapFileInput.files[0];
-    if (!file) return;
+  const mapList = document.getElementById('map-list');
+  const loadMapButton = document.getElementById('load-map');
+  try {
+    const catalogResponse = await fetch('maps/index.json');
+    if (!catalogResponse.ok) throw new Error(`Unable to load map list (${catalogResponse.status}).`);
+    const catalog = await catalogResponse.json();
+    if (!catalog || !Array.isArray(catalog.maps) ||
+      catalog.maps.some(map => !map || typeof map.name !== 'string' || !map.name.trim() ||
+        map.name.length > 100 || typeof map.file !== 'string' ||
+        !/^[a-z0-9]+(?:-[a-z0-9]+)*\.json$/.test(map.file))) {
+      throw new Error('The map list is not valid.');
+    }
+    const filenames = catalog.maps.map(map => map.file);
+    if (new Set(filenames).size !== filenames.length) throw new Error('The map list contains duplicate files.');
+    mapList.replaceChildren();
+    if (!catalog.maps.length) {
+      mapList.add(new Option('No maps available', ''));
+      document.getElementById('map-status').textContent =
+        'No maps are listed yet. Add map files to the maps folder and list them in maps/index.json.';
+    } else {
+      mapList.add(new Option('Select a map', ''));
+      for (const map of catalog.maps) mapList.add(new Option(map.name, map.file));
+      mapList.disabled = false;
+      loadMapButton.disabled = false;
+    }
+  } catch (error) {
+    document.getElementById('map-status').textContent = error.message;
+  }
+  mapList.addEventListener('change', () => {
+    if (mapList.value) {
+      const selectedMap = [...mapList.options].find(option => option.value === mapList.value);
+      document.getElementById('map-name').value = selectedMap.textContent;
+    }
+  });
+  loadMapButton.addEventListener('click', async () => {
+    const selectedMap = [...mapList.options].find(option => option.value === mapList.value);
+    if (!selectedMap) return;
     const status = document.getElementById('map-status');
     try {
-      if (file.size > 2 * 1024 * 1024) throw new Error('Map files must be 2 MB or smaller.');
-      const loadedRooms = validateMapData(
-        JSON.parse(await file.text()), canvas, config.itemColors, config.doorColors
-      );
+      const response = await fetch(`maps/${encodeURIComponent(mapList.value)}`);
+      if (!response.ok) throw new Error(`Unable to load ${selectedMap.textContent} (${response.status}).`);
+      const contentLength = Number(response.headers.get('content-length'));
+      if (contentLength > 2 * 1024 * 1024) throw new Error('Map files must be 2 MB or smaller.');
+      const mapData = await response.json();
+      const loadedRooms = validateMapData(mapData, canvas, config.itemColors, config.doorColors);
       rooms.splice(0, rooms.length, ...loadedRooms);
+      document.getElementById('map-name').value = mapData.name || selectedMap.textContent;
       selectedRoom = null;
       selectedPoi = null;
       selectedDoor = null;
@@ -588,13 +639,11 @@ async function init() {
         'Drag on an empty grid area to create a rectangular room. To draw a complex room, click its corners on grid intersections, then finish; edges must be horizontal or vertical. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.';
       updateRoomControls(config.itemColors);
       redraw();
-      status.textContent = 'Map loaded successfully.';
+      status.textContent = `Loaded ${document.getElementById('map-name').value}.`;
     } catch (error) {
       status.textContent = error instanceof SyntaxError
-        ? 'The selected file is not valid JSON.'
+        ? 'The selected map is not valid JSON.'
         : error.message;
-    } finally {
-      mapFileInput.value = '';
     }
   });
 
