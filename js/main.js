@@ -382,8 +382,10 @@ function validateMapData(data, canvas, itemColors, doorColors) {
   if (!data || typeof data !== 'object' || Array.isArray(data) ||
     data.format !== 'equinox-map' || data.version !== 1 ||
     (data.name !== undefined && (typeof data.name !== 'string' || !data.name.trim() || data.name.length > 100)) ||
-    data.grid?.width !== canvas.width || data.grid?.height !== canvas.height ||
-    data.grid?.tileSize !== TILE || !Array.isArray(data.rooms) || data.rooms.length > 1000) invalid();
+    !Number.isInteger(data.grid?.width) || !Number.isInteger(data.grid?.height) ||
+    data.grid.width < TILE || data.grid.height < TILE ||
+    data.grid.width > canvas.width || data.grid.height > canvas.height ||
+    data.grid.tileSize !== TILE || !Array.isArray(data.rooms) || data.rooms.length > 1000) invalid();
 
   const poiColors = new Set([...Object.keys(itemColors), 'black']);
   const roomsToLoad = data.rooms.map(room => {
