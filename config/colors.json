@@ -6,6 +6,6 @@
     "green": "#22c55e",
     "yellow": "#facc15"
   },
-  "doorColors": ["white", "pink", "blue", "green", "yellow", "none", "rainbow"],
+  "doorColors": ["white", "pink", "blue", "green", "yellow", "none", "hidden", "rainbow"],
   "rainbowDoorNote": "Rainbow doors have no key; something must be solved in the room."
 }

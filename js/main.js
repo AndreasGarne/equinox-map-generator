@@ -42,7 +42,8 @@ function drawGrid(ctx, w, h, preview = null, itemColors = {}) {
     for (const door of room.doors || []) {
       const x = (room.x + door.x) * TILE;
       const y = (room.y + door.y) * TILE;
-      const half = door.color === 'none' ? TILE / 2 : 9;
+      const isGap = door.color === 'none' || door.color === 'hidden';
+      const half = isGap ? TILE / 2 : 9;
       const inward = door.color === 'rainbow' ? doorInward(room, door) : { x: 0, y: 0 };
       const ox = x + inward.x * 5;
       const oy = y + inward.y * 5;
@@ -54,9 +55,10 @@ function drawGrid(ctx, w, h, preview = null, itemColors = {}) {
         ctx.moveTo(ox, oy - half);
         ctx.lineTo(ox, oy + half);
       }
-      ctx.lineCap = door.color === 'none' ? 'butt' : 'round';
+      ctx.lineCap = isGap ? 'butt' : 'round';
+      ctx.setLineDash(door.color === 'hidden' ? [4, 4] : []);
       ctx.lineWidth = door === selectedDoor ? 11 : 7;
-      if (door.color === 'none') {
+      if (isGap) {
         ctx.lineWidth = door === selectedDoor ? 7 : 5;
         ctx.strokeStyle = '#b0a060';
       } else if (door.color === 'rainbow') {
@@ -74,6 +76,7 @@ function drawGrid(ctx, w, h, preview = null, itemColors = {}) {
         ctx.strokeStyle = itemColors[door.color] || '#111';
       }
       ctx.stroke();
+      ctx.setLineDash([]);
       if (door === selectedDoor) {
         ctx.strokeStyle = '#3b82f6';
         ctx.lineWidth = 2;
