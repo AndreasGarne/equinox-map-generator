@@ -1,4 +1,12 @@
 const TILE = 32;
+const POI_TYPES = {
+  weapon: { letter: 'W', color: '#111' },
+  orb: { letter: 'O', color: '#1e3a8a' },
+  apple: { letter: 'A' },
+  potion: { letter: 'P' },
+  boss: { letter: 'B', color: '#dc2626' },
+  key: { letter: 'K' }
+};
 const rooms = [];
 let selectedRoom = null;
 let interaction = null;
@@ -32,18 +40,18 @@ function drawGrid(ctx, w, h, preview = null, itemColors = {}) {
     for (const poi of room.pois || []) {
       const x = (room.x + poi.x) * TILE;
       const y = (room.y + poi.y) * TILE;
-      ctx.beginPath();
-      ctx.arc(x, y, 6, 0, Math.PI * 2);
-      ctx.fillStyle = itemColors[poi.color] || '#fff';
-      ctx.fill();
-      ctx.strokeStyle = poi === selectedPoi ? '#3b82f6' : '#111';
-      ctx.lineWidth = poi === selectedPoi ? 3 : 1.5;
-      ctx.stroke();
-      if (poi.name) {
-        ctx.fillStyle = '#111';
-        ctx.font = '12px sans-serif';
-        ctx.fillText(poi.name, x + 9, y + 4);
+      const type = POI_TYPES[poi.type];
+      if (!type) continue;
+      if (poi === selectedPoi) {
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x - TILE / 2 + 2, y - TILE / 2 + 2, TILE - 4, TILE - 4);
       }
+      ctx.fillStyle = type.color || itemColors[poi.color] || '#111';
+      ctx.font = 'bold 20px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(type.letter, x, y);
     }
   }
 }
@@ -70,6 +78,8 @@ function drawRoom(ctx, room, isPreview = false, isSelected = false) {
   if (!isPreview) {
     ctx.fillStyle = '#111';
     ctx.font = '14px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
     ctx.fillText(room.name, x + 6, y + 18, Math.max(0, width - 12));
   }
 
@@ -238,10 +248,14 @@ function createRectangle(bounds, name) {
   return { ...bounds, points: rectanglePoints(bounds), shape: 'rectangle', name, pois: [] };
 }
 
-function updateRoomControls() {
+function getDefaultPoiColor(type, itemColors) {
+  return type === 'key' ? 'black' : Object.keys(itemColors)[0] || 'black';
+}
+
+function updateRoomControls(itemColors) {
   const nameInput = document.getElementById('room-name');
   const deleteButton = document.getElementById('delete-room');
-  const poiNameInput = document.getElementById('poi-name');
+  const poiTypeInput = document.getElementById('poi-type');
   const poiColorInput = document.getElementById('poi-color');
   nameInput.disabled = !selectedRoom;
   nameInput.value = selectedRoom ? selectedRoom.name : '';
@@ -251,10 +265,22 @@ function updateRoomControls() {
   document.getElementById('cancel-shape').disabled = !shapeMode;
   document.getElementById('place-poi').disabled = !selectedRoom || placingPoi || shapeMode;
   document.getElementById('cancel-poi').disabled = !placingPoi;
-  poiNameInput.disabled = !selectedPoi;
-  poiNameInput.value = selectedPoi ? selectedPoi.name : '';
-  poiColorInput.disabled = !selectedPoi;
-  if (selectedPoi) poiColorInput.value = selectedPoi.color;
+  poiTypeInput.disabled = !selectedRoom || shapeMode;
+  if (selectedPoi) poiTypeInput.value = selectedPoi.type;
+  const type = selectedPoi?.type || poiTypeInput.value;
+  const colors = { ...itemColors, black: itemColors.black || '#000000' };
+  poiColorInput.replaceChildren();
+  for (const [name, color] of Object.entries(colors)) {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    option.style.color = color;
+    poiColorInput.append(option);
+  }
+  const desiredColor = selectedPoi?.color || poiColorInput.value || getDefaultPoiColor(type, itemColors);
+  poiColorInput.value = colors[desiredColor] ? desiredColor : getDefaultPoiColor(type, itemColors);
+  if (selectedPoi && !colors[selectedPoi.color]) selectedPoi.color = poiColorInput.value;
+  poiColorInput.disabled = !selectedRoom || shapeMode || Boolean(POI_TYPES[type]?.color);
   document.getElementById('delete-poi').disabled = !selectedPoi;
 }
 
@@ -277,15 +303,23 @@ async function init() {
   const drawShapeButton = document.getElementById('draw-shape');
   const finishShapeButton = document.getElementById('finish-shape');
   const cancelShapeButton = document.getElementById('cancel-shape');
+  const poiTypeInput = document.getElementById('poi-type');
   const poiColorInput = document.getElementById('poi-color');
-  for (const [name, color] of Object.entries(config.itemColors)) {
-    const option = document.createElement('option');
-    option.value = name;
-    option.textContent = name;
-    option.style.color = color;
-    poiColorInput.append(option);
-  }
-  poiColorInput.value = Object.keys(config.itemColors)[0] || '';
+  poiColorInput.value = getDefaultPoiColor(poiTypeInput.value, config.itemColors);
+  poiTypeInput.addEventListener('change', () => {
+    if (selectedPoi) {
+      selectedPoi.type = poiTypeInput.value;
+      selectedPoi.color = getDefaultPoiColor(selectedPoi.type, config.itemColors);
+    }
+    updateRoomControls(config.itemColors);
+    redraw();
+  });
+  poiColorInput.addEventListener('change', () => {
+    if (!selectedPoi) return;
+    selectedPoi.color = poiColorInput.value;
+    redraw();
+  });
+  updateRoomControls(config.itemColors);
 
   drawShapeButton.addEventListener('click', () => {
     shapeMode = true;
@@ -294,7 +328,7 @@ async function init() {
     shapePoints = [];
     document.getElementById('map-help').textContent =
       'Click each corner on a grid intersection in order. Edges must be horizontal or vertical; finish to close the shape.';
-    updateRoomControls();
+    updateRoomControls(config.itemColors);
     redraw();
   });
   finishShapeButton.addEventListener('click', () => {
@@ -310,16 +344,16 @@ async function init() {
     shapePoints = [];
     shapeMode = false;
     document.getElementById('map-help').textContent =
-      'Drag on an empty grid area to create a rectangular room. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room to place points of interest; select a point to edit it.';
-    updateRoomControls();
+      'Drag on an empty grid area to create a rectangular room. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room, choose a point type and place it in a tile; select a marker to change its type or colour.';
+    updateRoomControls(config.itemColors);
     redraw();
   });
   cancelShapeButton.addEventListener('click', () => {
     shapePoints = [];
     shapeMode = false;
     document.getElementById('map-help').textContent =
-      'Drag on an empty grid area to create a rectangular room. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room to place points of interest; select a point to edit it.';
-    updateRoomControls();
+      'Drag on an empty grid area to create a rectangular room. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room, choose a point type and place it in a tile; select a marker to change its type or colour.';
+    updateRoomControls(config.itemColors);
     redraw();
   });
 
@@ -333,33 +367,23 @@ async function init() {
     if (!selectedRoom) return;
     placingPoi = true;
     selectedPoi = null;
+    updateRoomControls(config.itemColors);
     document.getElementById('map-help').textContent =
-      'Click inside the selected room to place a point of interest.';
-    updateRoomControls();
+      'Choose a point type and click a tile inside the selected room to place it.';
     redraw();
   });
   document.getElementById('cancel-poi').addEventListener('click', () => {
     placingPoi = false;
     document.getElementById('map-help').textContent =
-      'Select a room to add a point of interest. Select a point to edit its name or colour.';
-    updateRoomControls();
-    redraw();
-  });
-  document.getElementById('poi-name').addEventListener('input', event => {
-    if (!selectedPoi) return;
-    selectedPoi.name = event.target.value;
-    redraw();
-  });
-  poiColorInput.addEventListener('change', () => {
-    if (!selectedPoi) return;
-    selectedPoi.color = poiColorInput.value;
+      'Select a room, choose a point type and place it in a tile; select a marker to change its type or colour.';
+    updateRoomControls(config.itemColors);
     redraw();
   });
   document.getElementById('delete-poi').addEventListener('click', () => {
     if (!selectedRoom || !selectedPoi) return;
     selectedRoom.pois.splice(selectedRoom.pois.indexOf(selectedPoi), 1);
     selectedPoi = null;
-    updateRoomControls();
+    updateRoomControls(config.itemColors);
     redraw();
   });
   document.getElementById('delete-room').addEventListener('click', () => {
@@ -368,24 +392,27 @@ async function init() {
     selectedRoom = null;
     selectedPoi = null;
     placingPoi = false;
-    updateRoomControls();
+    updateRoomControls(config.itemColors);
     redraw();
   });
 
   canvas.addEventListener('pointerdown', event => {
     if (shapeMode) {
       shapePoints.push(getGridPoint(canvas, event));
-      updateRoomControls();
+      updateRoomControls(config.itemColors);
       redraw();
       return;
     }
     const position = getPosition(canvas, event);
     if (placingPoi) {
-      if (!pointInPolygon(position.x / TILE, position.y / TILE, selectedRoom.points)) return;
+      const cell = getCell(canvas, event);
+      const pointX = cell.x + 0.5;
+      const pointY = cell.y + 0.5;
+      if (!pointInPolygon(pointX, pointY, selectedRoom.points)) return;
       const poi = {
-        x: position.x / TILE - selectedRoom.x,
-        y: position.y / TILE - selectedRoom.y,
-        name: `Point ${(selectedRoom.pois || []).length + 1}`,
+        x: pointX - selectedRoom.x,
+        y: pointY - selectedRoom.y,
+        type: poiTypeInput.value,
         color: poiColorInput.value
       };
       selectedRoom.pois ||= [];
@@ -393,8 +420,8 @@ async function init() {
       selectedPoi = poi;
       placingPoi = false;
       document.getElementById('map-help').textContent =
-        'Select a room to add a point of interest. Select a point to edit its name or colour.';
-      updateRoomControls();
+        'Select a room, choose a point type and place it in a tile; select a marker to change its type or colour.';
+      updateRoomControls(config.itemColors);
       redraw();
       return;
     }
@@ -403,7 +430,7 @@ async function init() {
       selectedRoom = foundPoi.room;
       selectedPoi = foundPoi.poi;
       interaction = null;
-      updateRoomControls();
+      updateRoomControls(config.itemColors);
       redraw();
       return;
     }
@@ -426,7 +453,7 @@ async function init() {
       selectedRoom = null;
       interaction = { type: 'create', start: cell, end: cell };
     }
-    updateRoomControls();
+    updateRoomControls(config.itemColors);
     canvas.setPointerCapture(event.pointerId);
     redraw();
   });
@@ -472,7 +499,7 @@ async function init() {
       selectedPoi = null;
     }
     interaction = null;
-    updateRoomControls();
+    updateRoomControls(config.itemColors);
     redraw();
   });
   canvas.addEventListener('pointercancel', () => {
@@ -482,7 +509,7 @@ async function init() {
     }
     if (interaction?.type === 'create') selectedRoom = null;
     interaction = null;
-    updateRoomControls();
+    updateRoomControls(config.itemColors);
     redraw();
   });
 
