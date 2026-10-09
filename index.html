@@ -42,6 +42,12 @@
       <button id="delete-door" type="button" disabled>Delete door</button>
       <p id="rainbow-door-note" hidden></p>
     </div>
+    <div class="map-controls">
+      <button id="save-map" type="button">Save map</button>
+      <button id="load-map" type="button">Load map</button>
+      <input id="map-file" type="file" accept="application/json,.json" hidden>
+      <p id="map-status" role="status" aria-live="polite"></p>
+    </div>
     <canvas id="map" width="960" height="640" aria-describedby="map-help"></canvas>
   </main>
   <script type="module" src="js/main.js"></script>

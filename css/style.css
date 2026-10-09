@@ -3,8 +3,9 @@ header { padding: 8px 16px; background: #111; }
 h1 { margin: 0; font-size: 1.2rem; }
 main { padding: 16px; }
 canvas { background: #888; display: block; max-width: 100%; touch-action: none; }
-.room-controls, .poi-controls, .door-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+.room-controls, .poi-controls, .door-controls, .map-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
 .room-controls input { max-width: 240px; }
 button, input, select { font: inherit; }
 .poi-controls select, .door-controls select { max-width: 180px; }
 .door-controls p { flex-basis: 100%; margin: 0; }
+.map-controls p { margin: 0; }
