@@ -2,4 +2,4 @@ body { margin: 0; font-family: sans-serif; background: #222; color: #eee; }
 header { padding: 8px 16px; background: #111; }
 h1 { margin: 0; font-size: 1.2rem; }
 main { padding: 16px; }
-canvas { background: #888; display: block; }
+canvas { background: #888; display: block; max-width: 100%; touch-action: none; }
