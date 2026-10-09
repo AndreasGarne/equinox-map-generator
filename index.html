@@ -43,9 +43,14 @@
       <p id="rainbow-door-note" hidden></p>
     </div>
     <div class="map-controls">
+      <label for="map-name">Map name</label>
+      <input id="map-name" type="text" maxlength="100" placeholder="Name this map">
       <button id="save-map" type="button">Save map</button>
-      <button id="load-map" type="button">Load map</button>
-      <input id="map-file" type="file" accept="application/json,.json" hidden>
+      <label for="map-list">Available maps</label>
+      <select id="map-list" disabled>
+        <option value="">No maps available</option>
+      </select>
+      <button id="load-map" type="button" disabled>Load selected map</button>
       <p id="map-status" role="status" aria-live="polite"></p>
     </div>
     <canvas id="map" width="960" height="640" aria-describedby="map-help"></canvas>
