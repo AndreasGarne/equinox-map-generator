@@ -5,7 +5,8 @@ const POI_TYPES = {
   apple: { letter: 'A' },
   potion: { letter: 'P' },
   boss: { letter: 'B', color: '#dc2626' },
-  key: { letter: 'K' }
+  key: { letter: 'K' },
+  ladder: { letter: 'L', color: '#8b4513' }
 };
 const rooms = [];
 let selectedRoom = null;
