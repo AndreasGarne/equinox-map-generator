@@ -2,12 +2,22 @@ html, body { height: 100%; }
 body { margin: 0; display: flex; flex-direction: column; font-family: sans-serif; background: #222; color: #eee; }
 header { padding: 8px 16px; background: #111; }
 h1 { margin: 0; font-size: 1.2rem; }
-main { padding: 16px; flex: 1; min-height: 0; display: flex; flex-direction: column; }
-#map-viewport { flex: 1; min-height: 240px; overflow: auto; }
+h2 { margin: 0 0 8px; font-size: 1rem; }
+.app { flex: 1; min-height: 0; display: flex; }
+.panel { flex: 0 0 240px; box-sizing: border-box; padding: 12px; overflow-y: auto; background: #1a1a1a; border-right: 1px solid #000; display: flex; flex-direction: column; gap: 16px; }
+.panel section, .options, .map-controls { display: flex; flex-direction: column; gap: 8px; }
+.panel p { margin: 0; font-size: 0.85rem; color: #ccc; }
+.tool-palette { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tool-palette button { min-height: 44px; }
+.tool-palette button.active { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+.options { padding: 8px; background: #2a2a2a; border-radius: 4px; }
+main { flex: 1; min-width: 0; padding: 12px; display: flex; }
+#map-viewport { flex: 1; min-height: 0; overflow: auto; }
 canvas { background: #888; display: block; touch-action: none; }
-.room-controls, .poi-controls, .door-controls, .map-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
-.room-controls input { max-width: 240px; }
 button, input, select { font: inherit; }
-.poi-controls select, .door-controls select { max-width: 180px; }
-.door-controls p { flex-basis: 100%; margin: 0; }
-.map-controls p { margin: 0; }
+@media (max-width: 700px) {
+  .app { flex-direction: column; }
+  .panel { flex: 0 0 auto; max-height: 40vh; border-right: 0; }
+  main { flex: 1; min-height: 240px; }
+}
+[hidden] { display: none !important; }
