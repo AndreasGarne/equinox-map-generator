@@ -68,10 +68,10 @@ function getCell(canvas, event) {
   };
 }
 
-function getRoomAt(cell) {
+function getRoomAt(position) {
   return [...rooms].reverse().find(room =>
-    cell.x >= room.x && cell.x < room.x + room.width &&
-    cell.y >= room.y && cell.y < room.y + room.height
+    position.x >= room.x * TILE && position.x < (room.x + room.width) * TILE &&
+    position.y >= room.y * TILE && position.y < (room.y + room.height) * TILE
   );
 }
 
@@ -127,10 +127,10 @@ async function init() {
 
   canvas.addEventListener('pointerdown', event => {
     const cell = getCell(canvas, event);
-    const room = getRoomAt(cell);
+    const position = getPosition(canvas, event);
+    const room = getRoomAt(position);
     if (room) {
       selectedRoom = room;
-      const position = getPosition(canvas, event);
       interaction = {
         type: isResizeHandle(room, position) ? 'resize' : 'move',
         room,
@@ -168,9 +168,17 @@ async function init() {
     if (!interaction) return;
     if (interaction.type === 'create') {
       interaction.end = getCell(canvas, event);
-      const bounds = getRoomBounds(interaction.start, interaction.end);
-      selectedRoom = { ...bounds, name: `Room ${rooms.length + 1}` };
-      rooms.push(selectedRoom);
+      const clickedRoom = interaction.start.x === interaction.end.x &&
+        interaction.start.y === interaction.end.y
+        ? getRoomAt(getPosition(canvas, event))
+        : null;
+      if (clickedRoom) {
+        selectedRoom = clickedRoom;
+      } else {
+        const bounds = getRoomBounds(interaction.start, interaction.end);
+        selectedRoom = { ...bounds, name: `Room ${rooms.length + 1}` };
+        rooms.push(selectedRoom);
+      }
     }
     interaction = null;
     updateRoomControls();
