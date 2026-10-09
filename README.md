@@ -12,7 +12,7 @@ Doors can be placed on room boundaries and use the configured door colours. Sele
 ## Saving and loading maps
 Enter a map name and choose **Save map** to download a JSON file. The map name is stored in the JSON, and the filename is lowercased with spaces replaced by hyphens. Saving downloads the file; it does not modify the repository.
 
-To make a saved map available in the app, add the downloaded file to `maps/` and add its display name and filename to the `maps` array in `maps/index.json`. This catalog is needed because static hosting cannot reliably list a folder's files. **Load selected map** fetches a map from that catalog and replaces the current map. Map files preserve rooms, points of interest, and doors, and must match the app's current grid and configured colours.
+To make a saved map available in the app, add the downloaded file to `maps/` and add its display name and filename to the `maps` array in `maps/index.json`. This catalog is needed because static hosting cannot reliably list a folder's files. **Load selected map** fetches a map from that catalog and replaces the current map. Map files preserve rooms, points of interest, and doors, and use the app's tile size and configured colours. The grid is 120x80 cells; maps saved on a smaller grid (such as the earlier 30x20 one) still load and sit at the top-left. Room names in older files are ignored.
 
 ## Workflow
 Small changes on branches named `feat/…`, `chore/…` or `fix/…`, merged via PR.
