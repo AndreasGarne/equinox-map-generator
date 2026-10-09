@@ -125,14 +125,6 @@ function drawRoom(ctx, room, isPreview = false, isSelected = false) {
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  if (!isPreview) {
-    ctx.fillStyle = '#111';
-    ctx.font = '14px sans-serif';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
-    ctx.fillText(room.name, x + 6, y + 18, Math.max(0, width - 12));
-  }
-
   if (isSelected) {
     ctx.strokeStyle = '#3b82f6';
     ctx.lineWidth = 2;
@@ -379,7 +371,6 @@ function createMapData(canvas, name) {
       height: room.height,
       points: room.points.map(point => ({ ...point })),
       shape: room.shape,
-      name: room.name,
       pois: (room.pois || []).map(poi => ({ ...poi })),
       doors: (room.doors || []).map(door => ({ ...door }))
     }))
@@ -397,7 +388,6 @@ function validateMapData(data, canvas, itemColors, doorColors) {
   const poiColors = new Set([...Object.keys(itemColors), 'black']);
   const roomsToLoad = data.rooms.map(room => {
     if (!room || typeof room !== 'object' || Array.isArray(room) ||
-      typeof room.name !== 'string' || room.name.length > 100 ||
       !['rectangle', 'polygon'].includes(room.shape) ||
       !Number.isInteger(room.x) || !Number.isInteger(room.y) ||
       !Number.isInteger(room.width) || !Number.isInteger(room.height) ||
@@ -441,7 +431,6 @@ function validateMapData(data, canvas, itemColors, doorColors) {
       height: room.height,
       points: points.map(point => ({ x: point.x, y: point.y })),
       shape: room.shape,
-      name: room.name,
       pois,
       doors
     };
@@ -449,8 +438,8 @@ function validateMapData(data, canvas, itemColors, doorColors) {
   return roomsToLoad;
 }
 
-function createRectangle(bounds, name) {
-  return { ...bounds, points: rectanglePoints(bounds), shape: 'rectangle', name, pois: [], doors: [] };
+function createRectangle(bounds) {
+  return { ...bounds, points: rectanglePoints(bounds), shape: 'rectangle', pois: [], doors: [] };
 }
 
 function getMapFilename(name) {
@@ -463,13 +452,10 @@ function getDefaultPoiColor(type, itemColors) {
 }
 
 function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorColors) {
-  const nameInput = document.getElementById('room-name');
   const deleteButton = document.getElementById('delete-room');
   const poiTypeInput = document.getElementById('poi-type');
   const poiColorInput = document.getElementById('poi-color');
   const doorColorInput = document.getElementById('door-color');
-  nameInput.disabled = !selectedRoom;
-  nameInput.value = selectedRoom ? selectedRoom.name : '';
   deleteButton.disabled = !selectedRoom;
   document.getElementById('draw-shape').disabled = shapeMode;
   document.getElementById('finish-shape').disabled = !shapeMode || !isValidShape(shapePoints, document.getElementById('map'));
@@ -521,7 +507,7 @@ async function init() {
   const ctx = canvas.getContext('2d');
   const redraw = () => {
     const rectanglePreview = interaction?.type === 'create'
-      ? createRectangle(getRoomBounds(interaction.start, interaction.end), '')
+      ? createRectangle(getRoomBounds(interaction.start, interaction.end))
       : null;
     const shapePreview = shapeMode && shapePoints.length
       ? { ...getBounds(shapePoints), points: shapePoints, shape: 'polygon', valid: isValidShape(shapePoints, canvas) }
@@ -669,7 +655,6 @@ async function init() {
       ...getBounds(shapePoints),
       points: shapePoints.map(point => ({ ...point })),
       shape: 'polygon',
-      name: `Room ${rooms.length + 1}`,
       pois: [],
       doors: []
     };
@@ -690,12 +675,6 @@ async function init() {
     redraw();
   });
 
-  const nameInput = document.getElementById('room-name');
-  nameInput.addEventListener('input', () => {
-    if (!selectedRoom) return;
-    selectedRoom.name = nameInput.value;
-    redraw();
-  });
   document.getElementById('place-poi').addEventListener('click', () => {
     if (!selectedRoom) return;
     placingPoi = true;
@@ -889,7 +868,7 @@ async function init() {
         selectedRoom = clickedRoom;
       } else {
         const bounds = getRoomBounds(interaction.start, interaction.end);
-        selectedRoom = createRectangle(bounds, `Room ${rooms.length + 1}`);
+        selectedRoom = createRectangle(bounds);
         rooms.push(selectedRoom);
       }
       selectedPoi = null;
