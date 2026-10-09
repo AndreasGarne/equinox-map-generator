@@ -1,0 +1,11 @@
+{
+  "itemColors": {
+    "white": "#ffffff",
+    "pink": "#ff69b4",
+    "blue": "#3b82f6",
+    "green": "#22c55e",
+    "yellow": "#facc15"
+  },
+  "doorColors": ["white", "pink", "blue", "green", "yellow", "rainbow"],
+  "rainbowDoorNote": "Rainbow doors have no key; something must be solved in the room."
+}
