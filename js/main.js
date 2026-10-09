@@ -366,6 +366,87 @@ function isValidShape(points, canvas) {
   return area !== 0;
 }
 
+function createMapData(canvas) {
+  return {
+    format: 'equinox-map',
+    version: 1,
+    grid: { width: canvas.width, height: canvas.height, tileSize: TILE },
+    rooms: rooms.map(room => ({
+      x: room.x,
+      y: room.y,
+      width: room.width,
+      height: room.height,
+      points: room.points.map(point => ({ ...point })),
+      shape: room.shape,
+      name: room.name,
+      pois: (room.pois || []).map(poi => ({ ...poi })),
+      doors: (room.doors || []).map(door => ({ ...door }))
+    }))
+  };
+}
+
+function validateMapData(data, canvas, itemColors, doorColors) {
+  const invalid = () => { throw new Error('The selected file is not a valid Equinox map.'); };
+  if (!data || typeof data !== 'object' || Array.isArray(data) ||
+    data.format !== 'equinox-map' || data.version !== 1 ||
+    data.grid?.width !== canvas.width || data.grid?.height !== canvas.height ||
+    data.grid?.tileSize !== TILE || !Array.isArray(data.rooms) || data.rooms.length > 1000) invalid();
+
+  const poiColors = new Set([...Object.keys(itemColors), 'black']);
+  const roomsToLoad = data.rooms.map(room => {
+    if (!room || typeof room !== 'object' || Array.isArray(room) ||
+      typeof room.name !== 'string' || room.name.length > 100 ||
+      !['rectangle', 'polygon'].includes(room.shape) ||
+      !Number.isInteger(room.x) || !Number.isInteger(room.y) ||
+      !Number.isInteger(room.width) || !Number.isInteger(room.height) ||
+      room.width < 1 || room.height < 1 ||
+      !Array.isArray(room.points) || room.points.length > 1000 ||
+      !Array.isArray(room.pois) || room.pois.length > 1000 ||
+      !Array.isArray(room.doors) || room.doors.length > 1000) invalid();
+
+    const points = room.points;
+    if (points.some(point => !point || !Number.isInteger(point.x) || !Number.isInteger(point.y)) ||
+      !isValidShape(points, canvas)) invalid();
+    const bounds = getBounds(points);
+    if (room.shape === 'rectangle') {
+      const expectedPoints = rectanglePoints(room);
+      if (room.x + room.width > canvas.width / TILE || room.y + room.height > canvas.height / TILE ||
+        points.some((point, index) => point.x !== expectedPoints[index].x ||
+          point.y !== expectedPoints[index].y)) invalid();
+    } else if (room.x !== bounds.x || room.y !== bounds.y ||
+      room.width !== bounds.width || room.height !== bounds.height) invalid();
+
+    const pois = room.pois.map(poi => {
+      if (!poi || typeof poi !== 'object' || Array.isArray(poi) ||
+        !Number.isFinite(poi.x) || !Number.isFinite(poi.y) ||
+        !Number.isInteger(poi.x * 2) || !Number.isInteger(poi.y * 2) ||
+        !POI_TYPES[poi.type] || !poiColors.has(poi.color) ||
+        !pointInPolygon(room.x + poi.x, room.y + poi.y, points)) invalid();
+      return { x: poi.x, y: poi.y, type: poi.type, color: poi.color };
+    });
+    const doors = room.doors.map(door => {
+      if (!door || typeof door !== 'object' || Array.isArray(door) ||
+        !Number.isFinite(door.x) || !Number.isFinite(door.y) ||
+        !Number.isInteger(door.x * 2) || !Number.isInteger(door.y * 2) ||
+        !['horizontal', 'vertical'].includes(door.orientation) ||
+        !doorColors.includes(door.color) || !isDoorOnBoundary(room, door)) invalid();
+      return { x: door.x, y: door.y, orientation: door.orientation, color: door.color };
+    });
+    return {
+      x: room.x,
+      y: room.y,
+      width: room.width,
+      height: room.height,
+      points: points.map(point => ({ x: point.x, y: point.y })),
+      shape: room.shape,
+      name: room.name,
+      pois,
+      doors
+    };
+  });
+  return roomsToLoad;
+}
+
 function createRectangle(bounds, name) {
   return { ...bounds, points: rectanglePoints(bounds), shape: 'rectangle', name, pois: [], doors: [] };
 }
@@ -471,6 +552,51 @@ async function init() {
     updateRoomControls(config.itemColors);
   });
   updateRoomControls(config.itemColors);
+
+  document.getElementById('save-map').addEventListener('click', () => {
+    const file = new Blob([JSON.stringify(createMapData(canvas), null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(file);
+    const download = document.createElement('a');
+    download.href = url;
+    download.download = 'equinox-map.json';
+    download.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    document.getElementById('map-status').textContent = 'Map saved to a JSON file.';
+  });
+
+  const mapFileInput = document.getElementById('map-file');
+  document.getElementById('load-map').addEventListener('click', () => mapFileInput.click());
+  mapFileInput.addEventListener('change', async () => {
+    const file = mapFileInput.files[0];
+    if (!file) return;
+    const status = document.getElementById('map-status');
+    try {
+      if (file.size > 2 * 1024 * 1024) throw new Error('Map files must be 2 MB or smaller.');
+      const loadedRooms = validateMapData(
+        JSON.parse(await file.text()), canvas, config.itemColors, config.doorColors
+      );
+      rooms.splice(0, rooms.length, ...loadedRooms);
+      selectedRoom = null;
+      selectedPoi = null;
+      selectedDoor = null;
+      interaction = null;
+      shapeMode = false;
+      shapePoints = [];
+      placingPoi = false;
+      placingDoor = false;
+      document.getElementById('map-help').textContent =
+        'Drag on an empty grid area to create a rectangular room. To draw a complex room, click its corners on grid intersections, then finish; edges must be horizontal or vertical. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.';
+      updateRoomControls(config.itemColors);
+      redraw();
+      status.textContent = 'Map loaded successfully.';
+    } catch (error) {
+      status.textContent = error instanceof SyntaxError
+        ? 'The selected file is not valid JSON.'
+        : error.message;
+    } finally {
+      mapFileInput.value = '';
+    }
+  });
 
   drawShapeButton.addEventListener('click', () => {
     shapeMode = true;
