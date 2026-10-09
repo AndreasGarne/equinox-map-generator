@@ -11,12 +11,19 @@ const POI_TYPES = {
 const rooms = [];
 let selectedRoom = null;
 let interaction = null;
-let shapeMode = false;
+let tool = 'select';
 let shapePoints = [];
-let placingPoi = false;
 let selectedPoi = null;
-let placingDoor = false;
 let selectedDoor = null;
+
+const TOOL_HELP = {
+  select: 'Click a room, point or door to select it. Drag a room to move it, or drag its lower-right handle to resize it.',
+  room: 'Drag on the map to draw a rectangular room.',
+  complex: 'Click each corner on a grid intersection in order. Edges must be horizontal or vertical; then finish the shape.',
+  poi: 'Choose a type and colour, then click a tile inside a room to place a point of interest.',
+  door: 'Choose a colour, then click a room boundary to place a door.',
+  pan: 'Drag to scroll the map.'
+};
 
 async function loadConfig() {
   const res = await fetch('config/colors.json');
@@ -454,17 +461,22 @@ function getDefaultPoiColor(type, itemColors) {
 }
 
 function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorColors) {
-  const deleteButton = document.getElementById('delete-room');
   const poiTypeInput = document.getElementById('poi-type');
   const poiColorInput = document.getElementById('poi-color');
   const doorColorInput = document.getElementById('door-color');
-  deleteButton.disabled = !selectedRoom;
-  document.getElementById('draw-shape').disabled = shapeMode;
-  document.getElementById('finish-shape').disabled = !shapeMode || !isValidShape(shapePoints, document.getElementById('map'));
-  document.getElementById('cancel-shape').disabled = !shapeMode;
-  document.getElementById('place-poi').disabled = !selectedRoom || placingPoi || placingDoor || shapeMode;
-  document.getElementById('cancel-poi').disabled = !placingPoi;
-  poiTypeInput.disabled = !selectedRoom || placingDoor || shapeMode;
+  for (const button of document.querySelectorAll('[data-tool]')) {
+    const active = button.dataset.tool === tool;
+    button.setAttribute('aria-pressed', String(active));
+    button.classList.toggle('active', active);
+  }
+  document.getElementById('map-help').textContent = TOOL_HELP[tool];
+  document.getElementById('shape-options').hidden = tool !== 'complex';
+  document.getElementById('poi-options').hidden = tool !== 'poi' && !selectedPoi;
+  document.getElementById('door-options').hidden = tool !== 'door' && !selectedDoor;
+  document.getElementById('finish-shape').disabled =
+    tool !== 'complex' || !isValidShape(shapePoints, document.getElementById('map'));
+  document.getElementById('cancel-shape').disabled = tool !== 'complex';
+  document.getElementById('delete-selected').disabled = !selectedRoom;
   if (selectedPoi) poiTypeInput.value = selectedPoi.type;
   const type = selectedPoi?.type || poiTypeInput.value;
   const colors = { ...itemColors, black: itemColors.black || '#000000' };
@@ -479,11 +491,7 @@ function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorCo
   const desiredColor = selectedPoi?.color || poiColorInput.value || getDefaultPoiColor(type, itemColors);
   poiColorInput.value = colors[desiredColor] ? desiredColor : getDefaultPoiColor(type, itemColors);
   if (selectedPoi && !colors[selectedPoi.color]) selectedPoi.color = poiColorInput.value;
-  poiColorInput.disabled = !selectedRoom || shapeMode || Boolean(POI_TYPES[type]?.color);
-  document.getElementById('delete-poi').disabled = !selectedPoi;
-  document.getElementById('place-door').disabled = !selectedRoom || placingDoor || placingPoi || shapeMode;
-  document.getElementById('cancel-door').disabled = !placingDoor;
-  document.getElementById('delete-door').disabled = !selectedDoor;
+  poiColorInput.disabled = Boolean(POI_TYPES[type]?.color);
   const color = selectedDoor?.color || doorColorInput.value || doorColors[0];
   doorColorInput.replaceChildren();
   for (const name of doorColors) {
@@ -494,9 +502,8 @@ function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorCo
     doorColorInput.append(option);
   }
   doorColorInput.value = doorColors.includes(color) ? color : doorColors[0] || '';
-  doorColorInput.disabled = !selectedRoom || shapeMode;
   const note = document.getElementById('rainbow-door-note');
-  const showNote = Boolean(selectedRoom && window.equinoxConfig.rainbowDoorNote &&
+  const showNote = Boolean(window.equinoxConfig.rainbowDoorNote && !document.getElementById('door-options').hidden &&
     (selectedDoor?.color === 'rainbow' || (!selectedDoor && doorColorInput.value === 'rainbow')));
   note.textContent = showNote ? window.equinoxConfig.rainbowDoorNote : '';
   note.hidden = !showNote;
@@ -511,14 +518,13 @@ async function init() {
     const rectanglePreview = interaction?.type === 'create'
       ? createRectangle(getRoomBounds(interaction.start, interaction.end))
       : null;
-    const shapePreview = shapeMode && shapePoints.length
+    const shapePreview = tool === 'complex' && shapePoints.length
       ? { ...getBounds(shapePoints), points: shapePoints, shape: 'polygon', valid: isValidShape(shapePoints, canvas) }
       : null;
     const preview = rectanglePreview || shapePreview;
     drawGrid(ctx, canvas.width, canvas.height, preview, config.itemColors);
   };
 
-  const drawShapeButton = document.getElementById('draw-shape');
   const finishShapeButton = document.getElementById('finish-shape');
   const cancelShapeButton = document.getElementById('cancel-shape');
   const poiTypeInput = document.getElementById('poi-type');
@@ -623,12 +629,8 @@ async function init() {
       selectedPoi = null;
       selectedDoor = null;
       interaction = null;
-      shapeMode = false;
+      tool = 'select';
       shapePoints = [];
-      placingPoi = false;
-      placingDoor = false;
-      document.getElementById('map-help').textContent =
-        'Drag on an empty grid area to create a rectangular room. To draw a complex room, click its corners on grid intersections, then finish; edges must be horizontal or vertical. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.';
       updateRoomControls(config.itemColors);
       redraw();
       status.textContent = `Loaded ${document.getElementById('map-name').value}.`;
@@ -639,20 +641,24 @@ async function init() {
     }
   });
 
-  drawShapeButton.addEventListener('click', () => {
-    shapeMode = true;
-    placingPoi = false;
-    placingDoor = false;
-    selectedPoi = null;
-    selectedDoor = null;
+  const viewport = document.getElementById('map-viewport');
+  const setTool = newTool => {
+    tool = newTool;
     shapePoints = [];
-    document.getElementById('map-help').textContent =
-      'Click each corner on a grid intersection in order. Edges must be horizontal or vertical; finish to close the shape.';
+    interaction = null;
+    if (tool !== 'select') {
+      selectedPoi = null;
+      selectedDoor = null;
+    }
+    canvas.style.cursor = tool === 'pan' ? 'grab' : '';
     updateRoomControls(config.itemColors);
     redraw();
-  });
-  finishShapeButton.addEventListener('click', () => {
-    if (!isValidShape(shapePoints, canvas)) return;
+  };
+  for (const button of document.querySelectorAll('[data-tool]')) {
+    button.addEventListener('click', () => setTool(button.dataset.tool));
+  }
+  const finishShape = () => {
+    if (tool !== 'complex' || !isValidShape(shapePoints, canvas)) return;
     selectedRoom = {
       ...getBounds(shapePoints),
       points: shapePoints.map(point => ({ ...point })),
@@ -662,128 +668,113 @@ async function init() {
     };
     rooms.push(selectedRoom);
     shapePoints = [];
-    shapeMode = false;
-    document.getElementById('map-help').textContent =
-      'Drag on an empty grid area to create a rectangular room. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.';
     updateRoomControls(config.itemColors);
     redraw();
-  });
+  };
+  const deleteSelected = () => {
+    if (!selectedRoom) return;
+    if (selectedPoi) {
+      selectedRoom.pois.splice(selectedRoom.pois.indexOf(selectedPoi), 1);
+      selectedPoi = null;
+    } else if (selectedDoor) {
+      selectedRoom.doors.splice(selectedRoom.doors.indexOf(selectedDoor), 1);
+      selectedDoor = null;
+    } else {
+      rooms.splice(rooms.indexOf(selectedRoom), 1);
+      selectedRoom = null;
+    }
+    updateRoomControls(config.itemColors);
+    redraw();
+  };
+  finishShapeButton.addEventListener('click', finishShape);
   cancelShapeButton.addEventListener('click', () => {
     shapePoints = [];
-    shapeMode = false;
-    document.getElementById('map-help').textContent =
-      'Drag on an empty grid area to create a rectangular room. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.';
     updateRoomControls(config.itemColors);
     redraw();
   });
-
-  document.getElementById('place-poi').addEventListener('click', () => {
-    if (!selectedRoom) return;
-    placingPoi = true;
-    placingDoor = false;
-    selectedPoi = null;
-    selectedDoor = null;
-    updateRoomControls(config.itemColors);
-    document.getElementById('map-help').textContent =
-      'Choose a point type and click a tile inside the selected room to place it.';
-    redraw();
-  });
-  document.getElementById('cancel-poi').addEventListener('click', () => {
-    placingPoi = false;
-    document.getElementById('map-help').textContent =
-      'Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.';
-    updateRoomControls(config.itemColors);
-    redraw();
-  });
-  document.getElementById('delete-poi').addEventListener('click', () => {
-    if (!selectedRoom || !selectedPoi) return;
-    selectedRoom.pois.splice(selectedRoom.pois.indexOf(selectedPoi), 1);
-    selectedPoi = null;
-    updateRoomControls(config.itemColors);
-    redraw();
-  });
-  document.getElementById('delete-room').addEventListener('click', () => {
-    if (!selectedRoom) return;
-    rooms.splice(rooms.indexOf(selectedRoom), 1);
-    selectedRoom = null;
-    selectedPoi = null;
-    selectedDoor = null;
-    placingPoi = false;
-    placingDoor = false;
-    updateRoomControls(config.itemColors);
-    redraw();
-  });
-  document.getElementById('place-door').addEventListener('click', () => {
-    if (!selectedRoom) return;
-    placingDoor = true;
-    placingPoi = false;
-    selectedPoi = null;
-    selectedDoor = null;
-    updateRoomControls(config.itemColors);
-    document.getElementById('map-help').textContent =
-      'Click a room boundary to place a door. Select a door to change its colour or delete it.';
-    redraw();
-  });
-  document.getElementById('cancel-door').addEventListener('click', () => {
-    placingDoor = false;
-    document.getElementById('map-help').textContent =
-      'Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.';
-    updateRoomControls(config.itemColors);
-    redraw();
-  });
-  document.getElementById('delete-door').addEventListener('click', () => {
-    if (!selectedRoom || !selectedDoor) return;
-    selectedRoom.doors.splice(selectedRoom.doors.indexOf(selectedDoor), 1);
-    selectedDoor = null;
-    updateRoomControls(config.itemColors);
-    redraw();
+  document.getElementById('delete-selected').addEventListener('click', deleteSelected);
+  document.addEventListener('keydown', event => {
+    if (event.target.closest?.('input, select, textarea')) return;
+    if (event.key === 'Escape') {
+      if (tool === 'complex' && shapePoints.length) {
+        shapePoints = [];
+        updateRoomControls(config.itemColors);
+        redraw();
+      } else {
+        selectedRoom = null;
+        selectedPoi = null;
+        selectedDoor = null;
+        setTool('select');
+      }
+    } else if (event.key === 'Delete' || event.key === 'Backspace') {
+      event.preventDefault();
+      deleteSelected();
+    } else if (event.key === 'Enter' && tool === 'complex') {
+      finishShape();
+    }
   });
 
   canvas.addEventListener('pointerdown', event => {
-    if (shapeMode) {
+    if (tool === 'pan') {
+      interaction = {
+        type: 'pan',
+        x: event.clientX, y: event.clientY,
+        left: viewport.scrollLeft, top: viewport.scrollTop
+      };
+      canvas.style.cursor = 'grabbing';
+      canvas.setPointerCapture(event.pointerId);
+      return;
+    }
+    if (tool === 'complex') {
       shapePoints.push(getGridPoint(canvas, event));
       updateRoomControls(config.itemColors);
       redraw();
       return;
     }
     const position = getPosition(canvas, event);
-    if (placingDoor) {
-      const door = getDoorOnBoundary(selectedRoom, position);
-      if (!door) return;
-      selectedRoom.doors ||= [];
-      selectedDoor = selectedRoom.doors.find(existing =>
-        existing.x === door.x && existing.y === door.y && existing.orientation === door.orientation
-      );
-      if (!selectedDoor) {
-        selectedDoor = { ...door, color: doorColorInput.value };
-        selectedRoom.doors.push(selectedDoor);
+    if (tool === 'door') {
+      for (const room of [...rooms].reverse()) {
+        const door = getDoorOnBoundary(room, position);
+        if (!door) continue;
+        room.doors ||= [];
+        const existing = room.doors.find(item =>
+          item.x === door.x && item.y === door.y && item.orientation === door.orientation);
+        if (existing) existing.color = doorColorInput.value;
+        else room.doors.push({ ...door, color: doorColorInput.value });
+        selectedRoom = room;
+        updateRoomControls(config.itemColors);
+        redraw();
+        return;
       }
-      placingDoor = false;
-      document.getElementById('map-help').textContent =
-        'Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.';
+      return;
+    }
+    if (tool === 'poi') {
+      const room = getRoomAt(position);
+      if (!room) return;
+      const cell = getCell(canvas, event);
+      const pointX = cell.x + 0.5;
+      const pointY = cell.y + 0.5;
+      if (!pointInPolygon(pointX, pointY, room.points)) return;
+      room.pois ||= [];
+      room.pois.push({
+        x: pointX - room.x,
+        y: pointY - room.y,
+        type: poiTypeInput.value,
+        color: poiColorInput.value
+      });
+      selectedRoom = room;
       updateRoomControls(config.itemColors);
       redraw();
       return;
     }
-    if (placingPoi) {
+    if (tool === 'room') {
       const cell = getCell(canvas, event);
-      const pointX = cell.x + 0.5;
-      const pointY = cell.y + 0.5;
-      if (!pointInPolygon(pointX, pointY, selectedRoom.points)) return;
-      const poi = {
-        x: pointX - selectedRoom.x,
-        y: pointY - selectedRoom.y,
-        type: poiTypeInput.value,
-        color: poiColorInput.value
-      };
-      selectedRoom.pois ||= [];
-      selectedRoom.pois.push(poi);
-      selectedPoi = poi;
+      selectedRoom = null;
+      selectedPoi = null;
       selectedDoor = null;
-      placingPoi = false;
-      document.getElementById('map-help').textContent =
-        'Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.';
+      interaction = { type: 'create', start: cell, end: cell };
       updateRoomControls(config.itemColors);
+      canvas.setPointerCapture(event.pointerId);
       redraw();
       return;
     }
@@ -826,7 +817,6 @@ async function init() {
       };
     } else {
       selectedRoom = null;
-      interaction = { type: 'create', start: cell, end: cell };
     }
     updateRoomControls(config.itemColors);
     canvas.setPointerCapture(event.pointerId);
@@ -834,6 +824,11 @@ async function init() {
   });
   canvas.addEventListener('pointermove', event => {
     if (!interaction) return;
+    if (interaction.type === 'pan') {
+      viewport.scrollLeft = interaction.left - (event.clientX - interaction.x);
+      viewport.scrollTop = interaction.top - (event.clientY - interaction.y);
+      return;
+    }
     const cell = getCell(canvas, event);
     if (interaction.type === 'create') {
       interaction.end = cell;
@@ -863,16 +858,15 @@ async function init() {
   });
   canvas.addEventListener('pointerup', event => {
     if (!interaction) return;
+    if (interaction.type === 'pan') {
+      interaction = null;
+      canvas.style.cursor = 'grab';
+      return;
+    }
     if (interaction.type === 'create') {
       interaction.end = getCell(canvas, event);
-      const clickedRoom = getRoomAt(getPosition(canvas, event));
-      if (clickedRoom) {
-        selectedRoom = clickedRoom;
-      } else {
-        const bounds = getRoomBounds(interaction.start, interaction.end);
-        selectedRoom = createRectangle(bounds);
-        rooms.push(selectedRoom);
-      }
+      selectedRoom = createRectangle(getRoomBounds(interaction.start, interaction.end));
+      rooms.push(selectedRoom);
       selectedPoi = null;
     }
     interaction = null;
@@ -880,7 +874,8 @@ async function init() {
     redraw();
   });
   canvas.addEventListener('pointercancel', () => {
-    if (interaction && interaction.type !== 'create') {
+    if (interaction?.type === 'pan') canvas.style.cursor = 'grab';
+    if (interaction && interaction.type !== 'create' && interaction.type !== 'pan') {
       Object.assign(interaction.room, interaction.original);
       selectedPoi = null;
     }
