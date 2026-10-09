@@ -8,7 +8,7 @@
 <body>
   <header><h1>Equinox Map Generator</h1></header>
   <main>
-    <p id="map-help">Drag on an empty grid area to create a rectangular room. To draw a complex room, click its corners on grid intersections, then finish; edges must be horizontal or vertical. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room to place points of interest; select a point to edit it.</p>
+    <p id="map-help">Drag on an empty grid area to create a rectangular room. To draw a complex room, click its corners on grid intersections, then finish; edges must be horizontal or vertical. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room, choose a point type and place it in a tile; select a marker to change its type or colour.</p>
     <div class="room-controls">
       <label for="room-name">Selected room name</label>
       <input id="room-name" type="text" disabled>
@@ -18,12 +18,19 @@
       <button id="cancel-shape" type="button" disabled>Cancel shape</button>
     </div>
     <div class="poi-controls">
-      <button id="place-poi" type="button" disabled>Place point of interest</button>
-      <button id="cancel-poi" type="button" disabled>Cancel placement</button>
-      <label for="poi-name">Selected point name</label>
-      <input id="poi-name" type="text" disabled>
+      <label for="poi-type">Point type</label>
+      <select id="poi-type" disabled>
+        <option value="weapon">Weapon (W)</option>
+        <option value="orb">Orb (O)</option>
+        <option value="apple">Apple (A)</option>
+        <option value="potion">Potion (P)</option>
+        <option value="boss">Boss (B)</option>
+        <option value="key">Key (K)</option>
+      </select>
       <label for="poi-color">Colour</label>
       <select id="poi-color" disabled></select>
+      <button id="place-poi" type="button" disabled>Place point of interest</button>
+      <button id="cancel-poi" type="button" disabled>Cancel placement</button>
       <button id="delete-poi" type="button" disabled>Delete point</button>
     </div>
     <canvas id="map" width="960" height="640" aria-describedby="map-help"></canvas>
