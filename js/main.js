@@ -4,6 +4,8 @@ let selectedRoom = null;
 let interaction = null;
 let shapeMode = false;
 let shapePoints = [];
+let placingPoi = false;
+let selectedPoi = null;
 
 async function loadConfig() {
   const res = await fetch('config/colors.json');
@@ -11,7 +13,7 @@ async function loadConfig() {
   return res.json();
 }
 
-function drawGrid(ctx, w, h, preview = null) {
+function drawGrid(ctx, w, h, preview = null, itemColors = {}) {
   ctx.clearRect(0, 0, w, h);
   ctx.fillStyle = '#888';
   ctx.fillRect(0, 0, w, h);
@@ -25,6 +27,25 @@ function drawGrid(ctx, w, h, preview = null) {
   for (let x = 0; x <= w; x += TILE) { ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, h); }
   for (let y = 0; y <= h; y += TILE) { ctx.moveTo(0, y + 0.5); ctx.lineTo(w, y + 0.5); }
   ctx.stroke();
+
+  for (const room of rooms) {
+    for (const poi of room.pois || []) {
+      const x = (room.x + poi.x) * TILE;
+      const y = (room.y + poi.y) * TILE;
+      ctx.beginPath();
+      ctx.arc(x, y, 6, 0, Math.PI * 2);
+      ctx.fillStyle = itemColors[poi.color] || '#fff';
+      ctx.fill();
+      ctx.strokeStyle = poi === selectedPoi ? '#3b82f6' : '#111';
+      ctx.lineWidth = poi === selectedPoi ? 3 : 1.5;
+      ctx.stroke();
+      if (poi.name) {
+        ctx.fillStyle = '#111';
+        ctx.font = '12px sans-serif';
+        ctx.fillText(poi.name, x + 9, y + 4);
+      }
+    }
+  }
 }
 
 function drawRoom(ctx, room, isPreview = false, isSelected = false) {
@@ -108,6 +129,17 @@ function getRoomAt(position) {
   return [...rooms].reverse().find(room =>
     pointInPolygon(position.x / TILE, position.y / TILE, room.points)
   );
+}
+
+function getPoiAt(position) {
+  for (const room of [...rooms].reverse()) {
+    for (const poi of [...(room.pois || [])].reverse()) {
+      const x = (room.x + poi.x) * TILE;
+      const y = (room.y + poi.y) * TILE;
+      if (Math.hypot(position.x - x, position.y - y) <= 10) return { room, poi };
+    }
+  }
+  return null;
 }
 
 function isResizeHandle(room, position) {
@@ -203,18 +235,27 @@ function isValidShape(points, canvas) {
 }
 
 function createRectangle(bounds, name) {
-  return { ...bounds, points: rectanglePoints(bounds), shape: 'rectangle', name };
+  return { ...bounds, points: rectanglePoints(bounds), shape: 'rectangle', name, pois: [] };
 }
 
 function updateRoomControls() {
   const nameInput = document.getElementById('room-name');
   const deleteButton = document.getElementById('delete-room');
+  const poiNameInput = document.getElementById('poi-name');
+  const poiColorInput = document.getElementById('poi-color');
   nameInput.disabled = !selectedRoom;
   nameInput.value = selectedRoom ? selectedRoom.name : '';
   deleteButton.disabled = !selectedRoom;
   document.getElementById('draw-shape').disabled = shapeMode;
   document.getElementById('finish-shape').disabled = !shapeMode || !isValidShape(shapePoints, document.getElementById('map'));
   document.getElementById('cancel-shape').disabled = !shapeMode;
+  document.getElementById('place-poi').disabled = !selectedRoom || placingPoi || shapeMode;
+  document.getElementById('cancel-poi').disabled = !placingPoi;
+  poiNameInput.disabled = !selectedPoi;
+  poiNameInput.value = selectedPoi ? selectedPoi.name : '';
+  poiColorInput.disabled = !selectedPoi;
+  if (selectedPoi) poiColorInput.value = selectedPoi.color;
+  document.getElementById('delete-poi').disabled = !selectedPoi;
 }
 
 async function init() {
@@ -230,14 +271,26 @@ async function init() {
       ? { ...getBounds(shapePoints), points: shapePoints, shape: 'polygon', valid: isValidShape(shapePoints, canvas) }
       : null;
     const preview = rectanglePreview || shapePreview;
-    drawGrid(ctx, canvas.width, canvas.height, preview);
+    drawGrid(ctx, canvas.width, canvas.height, preview, config.itemColors);
   };
 
   const drawShapeButton = document.getElementById('draw-shape');
   const finishShapeButton = document.getElementById('finish-shape');
   const cancelShapeButton = document.getElementById('cancel-shape');
+  const poiColorInput = document.getElementById('poi-color');
+  for (const [name, color] of Object.entries(config.itemColors)) {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    option.style.color = color;
+    poiColorInput.append(option);
+  }
+  poiColorInput.value = Object.keys(config.itemColors)[0] || '';
+
   drawShapeButton.addEventListener('click', () => {
     shapeMode = true;
+    placingPoi = false;
+    selectedPoi = null;
     shapePoints = [];
     document.getElementById('map-help').textContent =
       'Click each corner on a grid intersection in order. Edges must be horizontal or vertical; finish to close the shape.';
@@ -250,13 +303,14 @@ async function init() {
       ...getBounds(shapePoints),
       points: shapePoints.map(point => ({ ...point })),
       shape: 'polygon',
-      name: `Room ${rooms.length + 1}`
+      name: `Room ${rooms.length + 1}`,
+      pois: []
     };
     rooms.push(selectedRoom);
     shapePoints = [];
     shapeMode = false;
     document.getElementById('map-help').textContent =
-      'Drag on an empty grid area to create a rectangular room. Select and drag a room to move it, or drag its lower-right handle to resize it.';
+      'Drag on an empty grid area to create a rectangular room. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room to place points of interest; select a point to edit it.';
     updateRoomControls();
     redraw();
   });
@@ -264,7 +318,7 @@ async function init() {
     shapePoints = [];
     shapeMode = false;
     document.getElementById('map-help').textContent =
-      'Drag on an empty grid area to create a rectangular room. Select and drag a room to move it, or drag its lower-right handle to resize it.';
+      'Drag on an empty grid area to create a rectangular room. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room to place points of interest; select a point to edit it.';
     updateRoomControls();
     redraw();
   });
@@ -275,10 +329,45 @@ async function init() {
     selectedRoom.name = nameInput.value;
     redraw();
   });
+  document.getElementById('place-poi').addEventListener('click', () => {
+    if (!selectedRoom) return;
+    placingPoi = true;
+    selectedPoi = null;
+    document.getElementById('map-help').textContent =
+      'Click inside the selected room to place a point of interest.';
+    updateRoomControls();
+    redraw();
+  });
+  document.getElementById('cancel-poi').addEventListener('click', () => {
+    placingPoi = false;
+    document.getElementById('map-help').textContent =
+      'Select a room to add a point of interest. Select a point to edit its name or colour.';
+    updateRoomControls();
+    redraw();
+  });
+  document.getElementById('poi-name').addEventListener('input', event => {
+    if (!selectedPoi) return;
+    selectedPoi.name = event.target.value;
+    redraw();
+  });
+  poiColorInput.addEventListener('change', () => {
+    if (!selectedPoi) return;
+    selectedPoi.color = poiColorInput.value;
+    redraw();
+  });
+  document.getElementById('delete-poi').addEventListener('click', () => {
+    if (!selectedRoom || !selectedPoi) return;
+    selectedRoom.pois.splice(selectedRoom.pois.indexOf(selectedPoi), 1);
+    selectedPoi = null;
+    updateRoomControls();
+    redraw();
+  });
   document.getElementById('delete-room').addEventListener('click', () => {
     if (!selectedRoom) return;
     rooms.splice(rooms.indexOf(selectedRoom), 1);
     selectedRoom = null;
+    selectedPoi = null;
+    placingPoi = false;
     updateRoomControls();
     redraw();
   });
@@ -290,9 +379,37 @@ async function init() {
       redraw();
       return;
     }
-    const cell = getCell(canvas, event);
     const position = getPosition(canvas, event);
+    if (placingPoi) {
+      if (!pointInPolygon(position.x / TILE, position.y / TILE, selectedRoom.points)) return;
+      const poi = {
+        x: position.x / TILE - selectedRoom.x,
+        y: position.y / TILE - selectedRoom.y,
+        name: `Point ${(selectedRoom.pois || []).length + 1}`,
+        color: poiColorInput.value
+      };
+      selectedRoom.pois ||= [];
+      selectedRoom.pois.push(poi);
+      selectedPoi = poi;
+      placingPoi = false;
+      document.getElementById('map-help').textContent =
+        'Select a room to add a point of interest. Select a point to edit its name or colour.';
+      updateRoomControls();
+      redraw();
+      return;
+    }
+    const foundPoi = getPoiAt(position);
+    if (foundPoi) {
+      selectedRoom = foundPoi.room;
+      selectedPoi = foundPoi.poi;
+      interaction = null;
+      updateRoomControls();
+      redraw();
+      return;
+    }
+    const cell = getCell(canvas, event);
     const room = getRoomAt(position);
+    selectedPoi = null;
     if (room) {
       selectedRoom = room;
       interaction = {
@@ -301,7 +418,8 @@ async function init() {
         start: cell,
         original: {
           x: room.x, y: room.y, width: room.width, height: room.height,
-          points: room.points.map(point => ({ ...point }))
+          points: room.points.map(point => ({ ...point })),
+          pois: (room.pois || []).map(poi => ({ ...poi }))
         }
       };
     } else {
@@ -331,6 +449,10 @@ async function init() {
         room.width = Math.max(1, Math.min(original.width + dx, canvas.width / TILE - original.x));
         room.height = Math.max(1, Math.min(original.height + dy, canvas.height / TILE - original.y));
         room.points = rectanglePoints(room);
+        for (const poi of room.pois || []) {
+          poi.x = Math.max(0.5, Math.min(poi.x, room.width - 0.5));
+          poi.y = Math.max(0.5, Math.min(poi.y, room.height - 0.5));
+        }
       }
     }
     redraw();
@@ -347,6 +469,7 @@ async function init() {
         selectedRoom = createRectangle(bounds, `Room ${rooms.length + 1}`);
         rooms.push(selectedRoom);
       }
+      selectedPoi = null;
     }
     interaction = null;
     updateRoomControls();
@@ -355,6 +478,7 @@ async function init() {
   canvas.addEventListener('pointercancel', () => {
     if (interaction && interaction.type !== 'create') {
       Object.assign(interaction.room, interaction.original);
+      selectedPoi = null;
     }
     if (interaction?.type === 'create') selectedRoom = null;
     interaction = null;
