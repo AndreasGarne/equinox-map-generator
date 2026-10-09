@@ -168,10 +168,7 @@ async function init() {
     if (!interaction) return;
     if (interaction.type === 'create') {
       interaction.end = getCell(canvas, event);
-      const clickedRoom = interaction.start.x === interaction.end.x &&
-        interaction.start.y === interaction.end.y
-        ? getRoomAt(getPosition(canvas, event))
-        : null;
+      const clickedRoom = getRoomAt(getPosition(canvas, event));
       if (clickedRoom) {
         selectedRoom = clickedRoom;
       } else {
