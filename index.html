@@ -8,7 +8,12 @@
 <body>
   <header><h1>Equinox Map Generator</h1></header>
   <main>
-    <p id="map-help">Drag on the grid to create a room. Rooms snap to the grid.</p>
+    <p id="map-help">Drag on an empty grid area to create a room. Select and drag a room to move it, or drag its lower-right handle to resize it.</p>
+    <div class="room-controls">
+      <label for="room-name">Selected room name</label>
+      <input id="room-name" type="text" disabled>
+      <button id="delete-room" type="button" disabled>Delete room</button>
+    </div>
     <canvas id="map" width="960" height="640" aria-describedby="map-help"></canvas>
   </main>
   <script type="module" src="js/main.js"></script>

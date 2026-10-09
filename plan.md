@@ -4,10 +4,10 @@
 
 - [x] Set up the static web app, load colour configuration, and render a grid.
 - [x] Create rooms by dragging on the grid; snap room bounds to grid cells and show room labels.
+- [x] Select, move, resize, rename, and delete rooms.
 
 ## Next
 
-- [ ] Select, move, resize, rename, and delete rooms.
 - [ ] Add and edit points of interest within rooms.
 - [ ] Add doors and support the configured door colours, including rainbow-door notes.
 - [ ] Save and load maps.
