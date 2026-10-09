@@ -1,3 +1,6 @@
 {
-  "maps": []
+  "maps": [
+    "name": "Galadonia",
+    "file": "galadonia.json"
+  ]
 }
