@@ -9,7 +9,7 @@
 ## Next
 
 - [x] Support grid-aligned orthogonal room shapes with right-angle corners, including concave solid shapes such as a hash sign without a hole.
-- [ ] Add and edit points of interest within rooms.
+- [x] Add and edit points of interest within rooms.
 - [ ] Add doors and support the configured door colours, including rainbow-door notes.
 - [ ] Save and load maps.
 - [ ] Add keyboard-accessible editing controls and validate map interactions.
