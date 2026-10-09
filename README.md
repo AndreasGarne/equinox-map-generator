@@ -9,6 +9,9 @@ Serve the folder statically (config is loaded via fetch), e.g. `python3 -m http.
 Colours are defined in `config/colors.json`.
 Doors can be placed on room boundaries and use the configured door colours. Selecting a rainbow door displays its configured note.
 
+## Using the editor
+Pick a tool from the palette in the left-hand panel: **Select** (select, move and resize rooms; select points and doors), **Room** (drag to draw a rectangle), **Complex room** (click corners, then Finish shape or Enter), **Point**, **Door** (click to place; options appear for the active tool) and **Pan** (drag to scroll the map, useful on touch screens). **Delete selected** or the Delete key removes the selected point, door or room, and Esc returns to Select.
+
 ## Saving and loading maps
 Enter a map name and choose **Save map** to download a JSON file. The map name is stored in the JSON, and the filename is lowercased with spaces replaced by hyphens. Saving downloads the file; it does not modify the repository.
 
