@@ -1,8 +1,10 @@
-body { margin: 0; font-family: sans-serif; background: #222; color: #eee; }
+html, body { height: 100%; }
+body { margin: 0; display: flex; flex-direction: column; font-family: sans-serif; background: #222; color: #eee; }
 header { padding: 8px 16px; background: #111; }
 h1 { margin: 0; font-size: 1.2rem; }
-main { padding: 16px; }
-canvas { background: #888; display: block; max-width: 100%; touch-action: none; }
+main { padding: 16px; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+#map-viewport { flex: 1; min-height: 240px; overflow: auto; }
+canvas { background: #888; display: block; touch-action: none; }
 .room-controls, .poi-controls, .door-controls, .map-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
 .room-controls input { max-width: 240px; }
 button, input, select { font: inherit; }
