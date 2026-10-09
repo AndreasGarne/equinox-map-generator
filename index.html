@@ -8,7 +8,7 @@
 <body>
   <header><h1>Equinox Map Generator</h1></header>
   <main>
-    <p id="map-help">Drag on an empty grid area to create a rectangular room. To draw a complex room, click its corners on grid intersections, then finish; edges must be horizontal or vertical. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room, choose a point type and place it in a tile; select a marker to change its type or colour.</p>
+    <p id="map-help">Drag on an empty grid area to create a rectangular room. To draw a complex room, click its corners on grid intersections, then finish; edges must be horizontal or vertical. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.</p>
     <div class="room-controls">
       <label for="room-name">Selected room name</label>
       <input id="room-name" type="text" disabled>
@@ -32,6 +32,14 @@
       <button id="place-poi" type="button" disabled>Place point of interest</button>
       <button id="cancel-poi" type="button" disabled>Cancel placement</button>
       <button id="delete-poi" type="button" disabled>Delete point</button>
+    </div>
+    <div class="door-controls">
+      <label for="door-color">Door colour</label>
+      <select id="door-color" disabled></select>
+      <button id="place-door" type="button" disabled>Place door</button>
+      <button id="cancel-door" type="button" disabled>Cancel placement</button>
+      <button id="delete-door" type="button" disabled>Delete door</button>
+      <p id="rainbow-door-note" hidden></p>
     </div>
     <canvas id="map" width="960" height="640" aria-describedby="map-help"></canvas>
   </main>

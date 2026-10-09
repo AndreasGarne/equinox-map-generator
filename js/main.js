@@ -14,6 +14,8 @@ let shapeMode = false;
 let shapePoints = [];
 let placingPoi = false;
 let selectedPoi = null;
+let placingDoor = false;
+let selectedDoor = null;
 
 async function loadConfig() {
   const res = await fetch('config/colors.json');
@@ -35,6 +37,43 @@ function drawGrid(ctx, w, h, preview = null, itemColors = {}) {
   for (let x = 0; x <= w; x += TILE) { ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, h); }
   for (let y = 0; y <= h; y += TILE) { ctx.moveTo(0, y + 0.5); ctx.lineTo(w, y + 0.5); }
   ctx.stroke();
+
+  for (const room of rooms) {
+    for (const door of room.doors || []) {
+      const x = (room.x + door.x) * TILE;
+      const y = (room.y + door.y) * TILE;
+      ctx.beginPath();
+      if (door.orientation === 'horizontal') {
+        ctx.moveTo(x - 9, y);
+        ctx.lineTo(x + 9, y);
+      } else {
+        ctx.moveTo(x, y - 9);
+        ctx.lineTo(x, y + 9);
+      }
+      ctx.lineCap = 'round';
+      ctx.lineWidth = door === selectedDoor ? 11 : 7;
+      if (door.color === 'rainbow') {
+        const gradient = door.orientation === 'horizontal'
+          ? ctx.createLinearGradient(x - 9, y, x + 9, y)
+          : ctx.createLinearGradient(x, y - 9, x, y + 9);
+        gradient.addColorStop(0, '#ef4444');
+        gradient.addColorStop(0.2, '#f97316');
+        gradient.addColorStop(0.4, '#eab308');
+        gradient.addColorStop(0.6, '#22c55e');
+        gradient.addColorStop(0.8, '#3b82f6');
+        gradient.addColorStop(1, '#a855f7');
+        ctx.strokeStyle = gradient;
+      } else {
+        ctx.strokeStyle = itemColors[door.color] || '#111';
+      }
+      ctx.stroke();
+      if (door === selectedDoor) {
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x - 13, y - 13, 26, 26);
+      }
+    }
+  }
 
   for (const room of rooms) {
     for (const poi of room.pois || []) {
@@ -152,6 +191,60 @@ function getPoiAt(position) {
   return null;
 }
 
+function getDoorAt(position) {
+  for (const room of [...rooms].reverse()) {
+    for (const door of [...(room.doors || [])].reverse()) {
+      const x = (room.x + door.x) * TILE;
+      const y = (room.y + door.y) * TILE;
+      if (Math.hypot(position.x - x, position.y - y) <= 12) return { room, door };
+    }
+  }
+  return null;
+}
+
+function getDoorOnBoundary(room, position) {
+  let closest = null;
+  for (let i = 0; i < room.points.length; i++) {
+    const start = room.points[i];
+    const end = room.points[(i + 1) % room.points.length];
+    const horizontal = start.y === end.y;
+    const cursor = (horizontal ? position.x : position.y) / TILE;
+    const fixed = horizontal ? start.y : start.x;
+    const perpendicular = Math.abs((horizontal ? position.y : position.x) / TILE - fixed);
+    const axisStart = horizontal ? start.x : start.y;
+    const axisEnd = horizontal ? end.x : end.y;
+    const min = Math.min(axisStart, axisEnd);
+    const max = Math.max(axisStart, axisEnd);
+    const distance = Math.hypot(perpendicular, Math.max(min - cursor, 0, cursor - max)) * TILE;
+    if (distance > 12 || (closest && distance >= closest.distance) || max - min < 1) continue;
+    const center = Math.max(min + 0.5, Math.min(Math.floor(cursor) + 0.5, max - 0.5));
+    closest = {
+      distance,
+      door: horizontal
+        ? { x: center - room.x, y: fixed - room.y, orientation: 'horizontal' }
+        : { x: fixed - room.x, y: center - room.y, orientation: 'vertical' }
+    };
+  }
+  return closest?.door || null;
+}
+
+function isDoorOnBoundary(room, door) {
+  const x = room.x + door.x;
+  const y = room.y + door.y;
+  return room.points.some((start, index) => {
+    const end = room.points[(index + 1) % room.points.length];
+    if (door.orientation === 'horizontal' && start.y === end.y) {
+      return y === start.y && x - 0.5 >= Math.min(start.x, end.x) &&
+        x + 0.5 <= Math.max(start.x, end.x);
+    }
+    if (door.orientation === 'vertical' && start.x === end.x) {
+      return x === start.x && y - 0.5 >= Math.min(start.y, end.y) &&
+        y + 0.5 <= Math.max(start.y, end.y);
+    }
+    return false;
+  });
+}
+
 function isResizeHandle(room, position) {
   if (room.shape !== 'rectangle') return false;
   const right = (room.x + room.width) * TILE;
@@ -245,27 +338,28 @@ function isValidShape(points, canvas) {
 }
 
 function createRectangle(bounds, name) {
-  return { ...bounds, points: rectanglePoints(bounds), shape: 'rectangle', name, pois: [] };
+  return { ...bounds, points: rectanglePoints(bounds), shape: 'rectangle', name, pois: [], doors: [] };
 }
 
 function getDefaultPoiColor(type, itemColors) {
   return type === 'key' ? 'black' : Object.keys(itemColors)[0] || 'black';
 }
 
-function updateRoomControls(itemColors) {
+function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorColors) {
   const nameInput = document.getElementById('room-name');
   const deleteButton = document.getElementById('delete-room');
   const poiTypeInput = document.getElementById('poi-type');
   const poiColorInput = document.getElementById('poi-color');
+  const doorColorInput = document.getElementById('door-color');
   nameInput.disabled = !selectedRoom;
   nameInput.value = selectedRoom ? selectedRoom.name : '';
   deleteButton.disabled = !selectedRoom;
   document.getElementById('draw-shape').disabled = shapeMode;
   document.getElementById('finish-shape').disabled = !shapeMode || !isValidShape(shapePoints, document.getElementById('map'));
   document.getElementById('cancel-shape').disabled = !shapeMode;
-  document.getElementById('place-poi').disabled = !selectedRoom || placingPoi || shapeMode;
+  document.getElementById('place-poi').disabled = !selectedRoom || placingPoi || placingDoor || shapeMode;
   document.getElementById('cancel-poi').disabled = !placingPoi;
-  poiTypeInput.disabled = !selectedRoom || shapeMode;
+  poiTypeInput.disabled = !selectedRoom || placingDoor || shapeMode;
   if (selectedPoi) poiTypeInput.value = selectedPoi.type;
   const type = selectedPoi?.type || poiTypeInput.value;
   const colors = { ...itemColors, black: itemColors.black || '#000000' };
@@ -282,6 +376,25 @@ function updateRoomControls(itemColors) {
   if (selectedPoi && !colors[selectedPoi.color]) selectedPoi.color = poiColorInput.value;
   poiColorInput.disabled = !selectedRoom || shapeMode || Boolean(POI_TYPES[type]?.color);
   document.getElementById('delete-poi').disabled = !selectedPoi;
+  document.getElementById('place-door').disabled = !selectedRoom || placingDoor || placingPoi || shapeMode;
+  document.getElementById('cancel-door').disabled = !placingDoor;
+  document.getElementById('delete-door').disabled = !selectedDoor;
+  const color = selectedDoor?.color || doorColorInput.value || doorColors[0];
+  doorColorInput.replaceChildren();
+  for (const name of doorColors) {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    option.style.color = itemColors[name] || '#111';
+    doorColorInput.append(option);
+  }
+  doorColorInput.value = doorColors.includes(color) ? color : doorColors[0] || '';
+  doorColorInput.disabled = !selectedRoom || shapeMode;
+  const note = document.getElementById('rainbow-door-note');
+  const showNote = Boolean(selectedRoom && window.equinoxConfig.rainbowDoorNote &&
+    (selectedDoor?.color === 'rainbow' || (!selectedDoor && doorColorInput.value === 'rainbow')));
+  note.textContent = showNote ? window.equinoxConfig.rainbowDoorNote : '';
+  note.hidden = !showNote;
 }
 
 async function init() {
@@ -305,7 +418,9 @@ async function init() {
   const cancelShapeButton = document.getElementById('cancel-shape');
   const poiTypeInput = document.getElementById('poi-type');
   const poiColorInput = document.getElementById('poi-color');
+  const doorColorInput = document.getElementById('door-color');
   poiColorInput.value = getDefaultPoiColor(poiTypeInput.value, config.itemColors);
+  doorColorInput.value = config.doorColors[0] || '';
   poiTypeInput.addEventListener('change', () => {
     if (selectedPoi) {
       selectedPoi.type = poiTypeInput.value;
@@ -319,12 +434,21 @@ async function init() {
     selectedPoi.color = poiColorInput.value;
     redraw();
   });
+  doorColorInput.addEventListener('change', () => {
+    if (selectedDoor) {
+      selectedDoor.color = doorColorInput.value;
+      redraw();
+    }
+    updateRoomControls(config.itemColors);
+  });
   updateRoomControls(config.itemColors);
 
   drawShapeButton.addEventListener('click', () => {
     shapeMode = true;
     placingPoi = false;
+    placingDoor = false;
     selectedPoi = null;
+    selectedDoor = null;
     shapePoints = [];
     document.getElementById('map-help').textContent =
       'Click each corner on a grid intersection in order. Edges must be horizontal or vertical; finish to close the shape.';
@@ -338,13 +462,14 @@ async function init() {
       points: shapePoints.map(point => ({ ...point })),
       shape: 'polygon',
       name: `Room ${rooms.length + 1}`,
-      pois: []
+      pois: [],
+      doors: []
     };
     rooms.push(selectedRoom);
     shapePoints = [];
     shapeMode = false;
     document.getElementById('map-help').textContent =
-      'Drag on an empty grid area to create a rectangular room. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room, choose a point type and place it in a tile; select a marker to change its type or colour.';
+      'Drag on an empty grid area to create a rectangular room. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.';
     updateRoomControls(config.itemColors);
     redraw();
   });
@@ -352,7 +477,7 @@ async function init() {
     shapePoints = [];
     shapeMode = false;
     document.getElementById('map-help').textContent =
-      'Drag on an empty grid area to create a rectangular room. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room, choose a point type and place it in a tile; select a marker to change its type or colour.';
+      'Drag on an empty grid area to create a rectangular room. Select and drag a room to move it, or drag its lower-right handle to resize it. Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.';
     updateRoomControls(config.itemColors);
     redraw();
   });
@@ -366,7 +491,9 @@ async function init() {
   document.getElementById('place-poi').addEventListener('click', () => {
     if (!selectedRoom) return;
     placingPoi = true;
+    placingDoor = false;
     selectedPoi = null;
+    selectedDoor = null;
     updateRoomControls(config.itemColors);
     document.getElementById('map-help').textContent =
       'Choose a point type and click a tile inside the selected room to place it.';
@@ -375,7 +502,7 @@ async function init() {
   document.getElementById('cancel-poi').addEventListener('click', () => {
     placingPoi = false;
     document.getElementById('map-help').textContent =
-      'Select a room, choose a point type and place it in a tile; select a marker to change its type or colour.';
+      'Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.';
     updateRoomControls(config.itemColors);
     redraw();
   });
@@ -391,7 +518,34 @@ async function init() {
     rooms.splice(rooms.indexOf(selectedRoom), 1);
     selectedRoom = null;
     selectedPoi = null;
+    selectedDoor = null;
     placingPoi = false;
+    placingDoor = false;
+    updateRoomControls(config.itemColors);
+    redraw();
+  });
+  document.getElementById('place-door').addEventListener('click', () => {
+    if (!selectedRoom) return;
+    placingDoor = true;
+    placingPoi = false;
+    selectedPoi = null;
+    selectedDoor = null;
+    updateRoomControls(config.itemColors);
+    document.getElementById('map-help').textContent =
+      'Click a room boundary to place a door. Select a door to change its colour or delete it.';
+    redraw();
+  });
+  document.getElementById('cancel-door').addEventListener('click', () => {
+    placingDoor = false;
+    document.getElementById('map-help').textContent =
+      'Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.';
+    updateRoomControls(config.itemColors);
+    redraw();
+  });
+  document.getElementById('delete-door').addEventListener('click', () => {
+    if (!selectedRoom || !selectedDoor) return;
+    selectedRoom.doors.splice(selectedRoom.doors.indexOf(selectedDoor), 1);
+    selectedDoor = null;
     updateRoomControls(config.itemColors);
     redraw();
   });
@@ -404,6 +558,24 @@ async function init() {
       return;
     }
     const position = getPosition(canvas, event);
+    if (placingDoor) {
+      const door = getDoorOnBoundary(selectedRoom, position);
+      if (!door) return;
+      selectedRoom.doors ||= [];
+      selectedDoor = selectedRoom.doors.find(existing =>
+        existing.x === door.x && existing.y === door.y && existing.orientation === door.orientation
+      );
+      if (!selectedDoor) {
+        selectedDoor = { ...door, color: doorColorInput.value };
+        selectedRoom.doors.push(selectedDoor);
+      }
+      placingDoor = false;
+      document.getElementById('map-help').textContent =
+        'Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.';
+      updateRoomControls(config.itemColors);
+      redraw();
+      return;
+    }
     if (placingPoi) {
       const cell = getCell(canvas, event);
       const pointX = cell.x + 0.5;
@@ -418,9 +590,20 @@ async function init() {
       selectedRoom.pois ||= [];
       selectedRoom.pois.push(poi);
       selectedPoi = poi;
+      selectedDoor = null;
       placingPoi = false;
       document.getElementById('map-help').textContent =
-        'Select a room, choose a point type and place it in a tile; select a marker to change its type or colour.';
+        'Select a room to place points of interest inside or doors on its boundary; select a marker or door to edit it.';
+      updateRoomControls(config.itemColors);
+      redraw();
+      return;
+    }
+    const foundDoor = getDoorAt(position);
+    if (foundDoor) {
+      selectedRoom = foundDoor.room;
+      selectedDoor = foundDoor.door;
+      selectedPoi = null;
+      interaction = null;
       updateRoomControls(config.itemColors);
       redraw();
       return;
@@ -429,6 +612,7 @@ async function init() {
     if (foundPoi) {
       selectedRoom = foundPoi.room;
       selectedPoi = foundPoi.poi;
+      selectedDoor = null;
       interaction = null;
       updateRoomControls(config.itemColors);
       redraw();
@@ -437,6 +621,7 @@ async function init() {
     const cell = getCell(canvas, event);
     const room = getRoomAt(position);
     selectedPoi = null;
+    selectedDoor = null;
     if (room) {
       selectedRoom = room;
       interaction = {
@@ -446,7 +631,8 @@ async function init() {
         original: {
           x: room.x, y: room.y, width: room.width, height: room.height,
           points: room.points.map(point => ({ ...point })),
-          pois: (room.pois || []).map(poi => ({ ...poi }))
+          pois: (room.pois || []).map(poi => ({ ...poi })),
+          doors: (room.doors || []).map(door => ({ ...door }))
         }
       };
     } else {
@@ -476,6 +662,8 @@ async function init() {
         room.width = Math.max(1, Math.min(original.width + dx, canvas.width / TILE - original.x));
         room.height = Math.max(1, Math.min(original.height + dy, canvas.height / TILE - original.y));
         room.points = rectanglePoints(room);
+        room.doors = (room.doors || []).filter(door => isDoorOnBoundary(room, door));
+        if (selectedDoor && !room.doors.includes(selectedDoor)) selectedDoor = null;
         for (const poi of room.pois || []) {
           poi.x = Math.max(0.5, Math.min(poi.x, room.width - 0.5));
           poi.y = Math.max(0.5, Math.min(poi.y, room.height - 0.5));
