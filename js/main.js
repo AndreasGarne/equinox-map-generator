@@ -42,20 +42,27 @@ function drawGrid(ctx, w, h, preview = null, itemColors = {}) {
     for (const door of room.doors || []) {
       const x = (room.x + door.x) * TILE;
       const y = (room.y + door.y) * TILE;
+      const half = door.color === 'none' ? TILE / 2 : 9;
+      const inward = door.color === 'rainbow' ? doorInward(room, door) : { x: 0, y: 0 };
+      const ox = x + inward.x * 5;
+      const oy = y + inward.y * 5;
       ctx.beginPath();
       if (door.orientation === 'horizontal') {
-        ctx.moveTo(x - 9, y);
-        ctx.lineTo(x + 9, y);
+        ctx.moveTo(ox - half, oy);
+        ctx.lineTo(ox + half, oy);
       } else {
-        ctx.moveTo(x, y - 9);
-        ctx.lineTo(x, y + 9);
+        ctx.moveTo(ox, oy - half);
+        ctx.lineTo(ox, oy + half);
       }
-      ctx.lineCap = 'round';
+      ctx.lineCap = door.color === 'none' ? 'butt' : 'round';
       ctx.lineWidth = door === selectedDoor ? 11 : 7;
-      if (door.color === 'rainbow') {
+      if (door.color === 'none') {
+        ctx.lineWidth = door === selectedDoor ? 7 : 5;
+        ctx.strokeStyle = '#b0a060';
+      } else if (door.color === 'rainbow') {
         const gradient = door.orientation === 'horizontal'
-          ? ctx.createLinearGradient(x - 9, y, x + 9, y)
-          : ctx.createLinearGradient(x, y - 9, x, y + 9);
+          ? ctx.createLinearGradient(ox - 9, oy, ox + 9, oy)
+          : ctx.createLinearGradient(ox, oy - 9, ox, oy + 9);
         gradient.addColorStop(0, '#ef4444');
         gradient.addColorStop(0.2, '#f97316');
         gradient.addColorStop(0.4, '#eab308');
@@ -189,6 +196,24 @@ function getPoiAt(position) {
     }
   }
   return null;
+}
+
+function doorInward(room, door) {
+  const x = room.x + door.x;
+  const y = room.y + door.y;
+  const d = door.orientation === 'horizontal' ? { x: 0, y: 1 } : { x: 1, y: 0 };
+  return pointInRoom(room, x + d.x * 0.1, y + d.y * 0.1) ? d : { x: -d.x, y: -d.y };
+}
+
+function pointInRoom(room, px, py) {
+  let inside = false;
+  const pts = room.points;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const a = pts[i];
+    const b = pts[j];
+    if ((a.y > py) !== (b.y > py) && px < ((b.x - a.x) * (py - a.y)) / (b.y - a.y) + a.x) inside = !inside;
+  }
+  return inside;
 }
 
 function getDoorAt(position) {
