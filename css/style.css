@@ -5,6 +5,5 @@ main { padding: 16px; }
 canvas { background: #888; display: block; max-width: 100%; touch-action: none; }
 .room-controls, .poi-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
 .room-controls input { max-width: 240px; }
-.poi-controls input { max-width: 180px; }
-button, input { font: inherit; }
-select { font: inherit; }
+button, input, select { font: inherit; }
+.poi-controls select { max-width: 180px; }
