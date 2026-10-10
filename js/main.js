@@ -618,7 +618,7 @@ function validateMapData(data, canvas, itemColors, doorColors) {
     data.grid.width > canvas.width || data.grid.height > canvas.height ||
     data.grid.tileSize !== TILE || !Array.isArray(data.rooms) || data.rooms.length > 1000) invalid();
 
-  const poiColors = new Set([...Object.keys(itemColors), 'black']);
+  const poiColors = new Set(Object.keys(itemColors));
   const roomsToLoad = data.rooms.map(room => {
     if (!room || typeof room !== 'object' || Array.isArray(room) ||
       !['rectangle', 'polygon'].includes(room.shape) ||
@@ -646,7 +646,8 @@ function validateMapData(data, canvas, itemColors, doorColors) {
       if (!poi || typeof poi !== 'object' || Array.isArray(poi) ||
         !Number.isFinite(poi.x) || !Number.isFinite(poi.y) ||
         !Number.isInteger(poi.x * 2) || !Number.isInteger(poi.y * 2) ||
-        !POI_TYPES[poi.type] || !poiColors.has(poi.color) ||
+        !POI_TYPES[poi.type] ||
+        (!poiColors.has(poi.color) && poi.color !== 'black') ||
         !pointInPolygon(room.x + poi.x, room.y + poi.y, points)) invalid();
       const color = poi.color === 'black' && !POI_TYPES[poi.type].color
         ? getDefaultPoiColor(itemColors)
@@ -693,7 +694,9 @@ function getMapFilename(name) {
 }
 
 function getDefaultPoiColor(itemColors) {
-  return Object.keys(itemColors).find(color => color !== 'black') || '';
+  const color = Object.keys(itemColors).find(name => name !== 'black');
+  if (!color) throw new Error('At least one non-black POI colour must be configured.');
+  return color;
 }
 
 function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorColors) {
