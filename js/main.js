@@ -6,22 +6,26 @@ const POI_TYPES = {
   potion: { letter: 'P' },
   boss: { letter: 'B', color: '#dc2626' },
   key: { letter: 'K' },
-  ladder: { letter: 'L', color: '#4b2508' }
+  ladder: { letter: 'L', color: '#4b2508' },
+  magic: { letter: 'M', color: '#3b82f6' }
 };
+const OBSTACLE_TYPES = ['spikes', 'wall'];
 const rooms = [];
 let selectedRoom = null;
 let interaction = null;
 let tool = 'select';
 let shapePoints = [];
 let selectedPoi = null;
+let selectedObstacle = null;
 let selectedDoor = null;
 
 const TOOL_HELP = {
-  select: 'Click a room, point or door to select it. Drag a room to move it, or drag its lower-right handle to resize it.',
+  select: 'Click a room, point, door or obstacle to select it. Drag a room to move it, or drag its lower-right handle to resize it.',
   room: 'Drag on the map to draw a rectangular room.',
   complex: 'Click each corner on a grid intersection in order. Edges must be horizontal or vertical; then finish the shape.',
   poi: 'Choose a type and colour, then click a tile inside a room to place a point of interest.',
   door: 'Choose a colour, then click a room boundary to place a door.',
+  obstacle: 'Choose spikes or wall, then click a tile inside a room to place it. Clicking an occupied tile replaces it.',
   pan: 'Drag to scroll the map.'
 };
 
@@ -45,6 +49,10 @@ function drawGrid(ctx, w, h, preview = null, itemColors = {}) {
   for (let x = 0; x <= w; x += TILE) { ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, h); }
   for (let y = 0; y <= h; y += TILE) { ctx.moveTo(0, y + 0.5); ctx.lineTo(w, y + 0.5); }
   ctx.stroke();
+
+  for (const room of rooms) {
+    for (const obstacle of room.obstacles || []) drawObstacle(ctx, room, obstacle, obstacle === selectedObstacle);
+  }
 
   for (const room of rooms) {
     for (const door of room.doors || []) {
@@ -110,6 +118,46 @@ function drawGrid(ctx, w, h, preview = null, itemColors = {}) {
       ctx.textBaseline = 'middle';
       ctx.fillText(type.letter, x, y);
     }
+  }
+}
+
+function drawObstacle(ctx, room, obstacle, isSelected) {
+  const x = (room.x + obstacle.x) * TILE;
+  const y = (room.y + obstacle.y) * TILE;
+  if (obstacle.type === 'wall') {
+    ctx.fillStyle = '#44403c';
+    ctx.fillRect(x + 1, y + 1, TILE - 1, TILE - 1);
+    ctx.strokeStyle = '#78716c';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x + 1, y + TILE / 2);
+    ctx.lineTo(x + TILE, y + TILE / 2);
+    ctx.moveTo(x + TILE / 2, y + 1);
+    ctx.lineTo(x + TILE / 2, y + TILE / 2);
+    ctx.moveTo(x + TILE / 4, y + TILE / 2);
+    ctx.lineTo(x + TILE / 4, y + TILE);
+    ctx.moveTo(x + (TILE * 3) / 4, y + TILE / 2);
+    ctx.lineTo(x + (TILE * 3) / 4, y + TILE);
+    ctx.stroke();
+  } else {
+    ctx.fillStyle = '#e5e7eb';
+    ctx.strokeStyle = '#374151';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 3; i++) {
+      const left = x + 3 + i * 9;
+      ctx.beginPath();
+      ctx.moveTo(left, y + TILE - 5);
+      ctx.lineTo(left + 4.5, y + 6);
+      ctx.lineTo(left + 9, y + TILE - 5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
+  if (isSelected) {
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x + 2, y + 2, TILE - 3, TILE - 3);
   }
 }
 
@@ -197,6 +245,16 @@ function getPoiAt(position) {
       const y = (room.y + poi.y) * TILE;
       if (Math.hypot(position.x - x, position.y - y) <= 10) return { room, poi };
     }
+  }
+  return null;
+}
+
+function getObstacleAt(position) {
+  const cellX = Math.floor(position.x / TILE);
+  const cellY = Math.floor(position.y / TILE);
+  for (const room of [...rooms].reverse()) {
+    const obstacle = (room.obstacles || []).find(item => room.x + item.x === cellX && room.y + item.y === cellY);
+    if (obstacle) return { room, obstacle };
   }
   return null;
 }
@@ -379,7 +437,8 @@ function createMapData(canvas, name) {
       points: room.points.map(point => ({ ...point })),
       shape: room.shape,
       pois: (room.pois || []).map(poi => ({ ...poi })),
-      doors: (room.doors || []).map(door => ({ ...door }))
+      doors: (room.doors || []).map(door => ({ ...door })),
+      obstacles: (room.obstacles || []).map(obstacle => ({ ...obstacle }))
     }))
   };
 }
@@ -403,7 +462,8 @@ function validateMapData(data, canvas, itemColors, doorColors) {
       room.width < 1 || room.height < 1 ||
       !Array.isArray(room.points) || room.points.length > 1000 ||
       !Array.isArray(room.pois) || room.pois.length > 1000 ||
-      !Array.isArray(room.doors) || room.doors.length > 1000) invalid();
+      !Array.isArray(room.doors) || room.doors.length > 1000 ||
+      (room.obstacles !== undefined && (!Array.isArray(room.obstacles) || room.obstacles.length > 10000))) invalid();
 
     const points = room.points;
     if (points.some(point => !point || !Number.isInteger(point.x) || !Number.isInteger(point.y)) ||
@@ -433,6 +493,13 @@ function validateMapData(data, canvas, itemColors, doorColors) {
         !doorColors.includes(door.color) || !isDoorOnBoundary(room, door)) invalid();
       return { x: door.x, y: door.y, orientation: door.orientation, color: door.color };
     });
+    const obstacles = (room.obstacles || []).map(obstacle => {
+      if (!obstacle || typeof obstacle !== 'object' || Array.isArray(obstacle) ||
+        !Number.isInteger(obstacle.x) || !Number.isInteger(obstacle.y) ||
+        !OBSTACLE_TYPES.includes(obstacle.type) ||
+        !pointInPolygon(room.x + obstacle.x + 0.5, room.y + obstacle.y + 0.5, points)) invalid();
+      return { x: obstacle.x, y: obstacle.y, type: obstacle.type };
+    });
     return {
       x: room.x,
       y: room.y,
@@ -441,14 +508,15 @@ function validateMapData(data, canvas, itemColors, doorColors) {
       points: points.map(point => ({ x: point.x, y: point.y })),
       shape: room.shape,
       pois,
-      doors
+      doors,
+      obstacles
     };
   });
   return roomsToLoad;
 }
 
 function createRectangle(bounds) {
-  return { ...bounds, points: rectanglePoints(bounds), shape: 'rectangle', pois: [], doors: [] };
+  return { ...bounds, points: rectanglePoints(bounds), shape: 'rectangle', pois: [], doors: [], obstacles: [] };
 }
 
 function getMapFilename(name) {
@@ -473,11 +541,13 @@ function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorCo
   document.getElementById('shape-options').hidden = tool !== 'complex';
   document.getElementById('poi-options').hidden = tool !== 'poi' && !selectedPoi;
   document.getElementById('door-options').hidden = tool !== 'door' && !selectedDoor;
+  document.getElementById('obstacle-options').hidden = tool !== 'obstacle' && !selectedObstacle;
   document.getElementById('finish-shape').disabled =
     tool !== 'complex' || !isValidShape(shapePoints, document.getElementById('map'));
   document.getElementById('cancel-shape').disabled = tool !== 'complex';
   document.getElementById('delete-selected').disabled = !selectedRoom;
   if (selectedPoi) poiTypeInput.value = selectedPoi.type;
+  if (selectedObstacle) document.getElementById('obstacle-type').value = selectedObstacle.type;
   const type = selectedPoi?.type || poiTypeInput.value;
   const colors = { ...itemColors, black: itemColors.black || '#000000' };
   poiColorInput.replaceChildren();
@@ -539,6 +609,12 @@ async function init() {
     }
     updateRoomControls(config.itemColors);
     redraw();
+  });
+  document.getElementById('obstacle-type').addEventListener('change', event => {
+    if (selectedObstacle) {
+      selectedObstacle.type = event.target.value;
+      redraw();
+    }
   });
   poiColorInput.addEventListener('change', () => {
     if (!selectedPoi) return;
@@ -619,6 +695,7 @@ async function init() {
       document.getElementById('map-name').value = mapData.name || selectedMap.textContent;
       selectedRoom = null;
       selectedPoi = null;
+      selectedObstacle = null;
       selectedDoor = null;
       interaction = null;
       tool = 'select';
@@ -642,6 +719,7 @@ async function init() {
     interaction = null;
     if (tool !== 'select') {
       selectedPoi = null;
+      selectedObstacle = null;
       selectedDoor = null;
     }
     canvas.style.cursor = tool === 'pan' ? 'grab' : '';
@@ -658,7 +736,8 @@ async function init() {
       points: shapePoints.map(point => ({ ...point })),
       shape: 'polygon',
       pois: [],
-      doors: []
+      doors: [],
+      obstacles: []
     };
     rooms.push(selectedRoom);
     shapePoints = [];
@@ -667,7 +746,10 @@ async function init() {
   };
   const deleteSelected = () => {
     if (!selectedRoom) return;
-    if (selectedPoi) {
+    if (selectedObstacle) {
+      selectedRoom.obstacles.splice(selectedRoom.obstacles.indexOf(selectedObstacle), 1);
+      selectedObstacle = null;
+    } else if (selectedPoi) {
       selectedRoom.pois.splice(selectedRoom.pois.indexOf(selectedPoi), 1);
       selectedPoi = null;
     } else if (selectedDoor) {
@@ -697,6 +779,7 @@ async function init() {
       } else {
         selectedRoom = null;
         selectedPoi = null;
+        selectedObstacle = null;
         selectedDoor = null;
         setTool('select');
       }
@@ -761,6 +844,23 @@ async function init() {
       redraw();
       return;
     }
+    if (tool === 'obstacle') {
+      const room = getRoomAt(position);
+      if (!room) return;
+      const cell = getCell(canvas, event);
+      if (!pointInPolygon(cell.x + 0.5, cell.y + 0.5, room.points)) return;
+      const x = cell.x - room.x;
+      const y = cell.y - room.y;
+      room.obstacles ||= [];
+      const type = document.getElementById('obstacle-type').value;
+      const existing = room.obstacles.find(item => item.x === x && item.y === y);
+      if (existing) existing.type = type;
+      else room.obstacles.push({ x, y, type });
+      selectedRoom = room;
+      updateRoomControls(config.itemColors);
+      redraw();
+      return;
+    }
     if (tool === 'room') {
       const cell = getCell(canvas, event);
       selectedRoom = null;
@@ -777,6 +877,7 @@ async function init() {
       selectedRoom = foundDoor.room;
       selectedDoor = foundDoor.door;
       selectedPoi = null;
+      selectedObstacle = null;
       interaction = null;
       updateRoomControls(config.itemColors);
       redraw();
@@ -786,6 +887,18 @@ async function init() {
     if (foundPoi) {
       selectedRoom = foundPoi.room;
       selectedPoi = foundPoi.poi;
+      selectedObstacle = null;
+      selectedDoor = null;
+      interaction = null;
+      updateRoomControls(config.itemColors);
+      redraw();
+      return;
+    }
+    const foundObstacle = getObstacleAt(position);
+    if (foundObstacle) {
+      selectedRoom = foundObstacle.room;
+      selectedObstacle = foundObstacle.obstacle;
+      selectedPoi = null;
       selectedDoor = null;
       interaction = null;
       updateRoomControls(config.itemColors);
@@ -795,6 +908,7 @@ async function init() {
     const cell = getCell(canvas, event);
     const room = getRoomAt(position);
     selectedPoi = null;
+    selectedObstacle = null;
     selectedDoor = null;
     if (room) {
       selectedRoom = room;
@@ -806,7 +920,8 @@ async function init() {
           x: room.x, y: room.y, width: room.width, height: room.height,
           points: room.points.map(point => ({ ...point })),
           pois: (room.pois || []).map(poi => ({ ...poi })),
-          doors: (room.doors || []).map(door => ({ ...door }))
+          doors: (room.doors || []).map(door => ({ ...door })),
+          obstacles: (room.obstacles || []).map(obstacle => ({ ...obstacle }))
         }
       };
     } else {
@@ -842,6 +957,8 @@ async function init() {
         room.points = rectanglePoints(room);
         room.doors = (room.doors || []).filter(door => isDoorOnBoundary(room, door));
         if (selectedDoor && !room.doors.includes(selectedDoor)) selectedDoor = null;
+        room.obstacles = (room.obstacles || []).filter(item => item.x < room.width && item.y < room.height);
+        if (selectedObstacle && !room.obstacles.includes(selectedObstacle)) selectedObstacle = null;
         for (const poi of room.pois || []) {
           poi.x = Math.max(0.5, Math.min(poi.x, room.width - 0.5));
           poi.y = Math.max(0.5, Math.min(poi.y, room.height - 0.5));
@@ -862,6 +979,7 @@ async function init() {
       selectedRoom = createRectangle(getRoomBounds(interaction.start, interaction.end));
       rooms.push(selectedRoom);
       selectedPoi = null;
+      selectedObstacle = null;
     }
     interaction = null;
     updateRoomControls(config.itemColors);
@@ -872,6 +990,7 @@ async function init() {
     if (interaction && interaction.type !== 'create' && interaction.type !== 'pan') {
       Object.assign(interaction.room, interaction.original);
       selectedPoi = null;
+      selectedObstacle = null;
     }
     if (interaction?.type === 'create') selectedRoom = null;
     interaction = null;
