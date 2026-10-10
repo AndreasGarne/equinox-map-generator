@@ -575,7 +575,6 @@ async function init() {
   });
 
   const mapList = document.getElementById('map-list');
-  const loadMapButton = document.getElementById('load-map');
   try {
     const catalogResponse = await fetch('maps/index.json');
     if (!catalogResponse.ok) throw new Error(`Unable to load map list (${catalogResponse.status}).`);
@@ -594,23 +593,16 @@ async function init() {
       document.getElementById('map-status').textContent =
         'No maps are listed yet. Add map files to the maps folder and list them in maps/index.json.';
     } else {
-      mapList.add(new Option('Select a map', ''));
+      mapList.add(new Option('- select map -', ''));
       for (const map of catalog.maps) mapList.add(new Option(map.name, map.file));
       mapList.disabled = false;
-      loadMapButton.disabled = false;
     }
   } catch (error) {
     document.getElementById('map-status').textContent = error.message;
   }
-  mapList.addEventListener('change', () => {
-    if (mapList.value) {
-      const selectedMap = [...mapList.options].find(option => option.value === mapList.value);
-      document.getElementById('map-name').value = selectedMap.textContent;
-    }
-  });
-  loadMapButton.addEventListener('click', async () => {
-    const selectedMap = [...mapList.options].find(option => option.value === mapList.value);
-    if (!selectedMap) return;
+  mapList.addEventListener('change', async () => {
+    if (!mapList.value) return;
+    const selectedMap = mapList.selectedOptions[0];
     const status = document.getElementById('map-status');
     try {
       const response = await fetch(`maps/${encodeURIComponent(mapList.value)}`);
@@ -638,6 +630,8 @@ async function init() {
       status.textContent = error instanceof SyntaxError
         ? 'The selected map is not valid JSON.'
         : error.message;
+    } finally {
+      mapList.value = '';
     }
   });
 
