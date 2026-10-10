@@ -9,7 +9,7 @@ const POI_TYPES = {
   potion: { letter: 'P' },
   boss: { letter: 'B', color: '#dc2626' },
   key: { letter: 'K' },
-  ladder: { letter: 'L', color: '#4b2508' },
+  ladder: { letter: 'L', color: '#c4a484' },
   magic: { letter: 'M', color: '#3b82f6' }
 };
 const OBSTACLE_TYPES = ['spikes', 'wall'];
