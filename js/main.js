@@ -630,11 +630,28 @@ async function init() {
   });
   updateRoomControls(config.itemColors);
 
-  document.getElementById('save-map').addEventListener('click', () => {
-    const nameInput = document.getElementById('map-name');
+  const mapList = document.getElementById('map-list');
+  const saveOptions = document.getElementById('save-options');
+  const nameInput = document.getElementById('map-name');
+  const status = document.getElementById('map-status');
+  let catalogMaps = [];
+  let currentMapName = '';
+  let currentMapFile = '';
+  const snapshot = () => JSON.stringify(createMapData(canvas, '').rooms);
+  let savedSnapshot = snapshot();
+  const hasUnsavedChanges = () => snapshot() !== savedSnapshot;
+
+  const getDefaultMapName = () => {
+    if (currentMapName) return currentMapName;
+    const taken = new Set(catalogMaps.flatMap(map => [map.name.toLowerCase(), map.file]));
+    let number = 1;
+    while (taken.has(`map_name_${number}`) || taken.has(getMapFilename(`map_name_${number}`))) number++;
+    return `map_name_${number}`;
+  };
+
+  const confirmSave = () => {
     const name = nameInput.value.trim();
     const filename = getMapFilename(name);
-    const status = document.getElementById('map-status');
     if (!name || filename === '.json') {
       status.textContent = 'Enter a map name containing at least one letter or number.';
       nameInput.focus();
@@ -647,10 +664,24 @@ async function init() {
     download.download = filename;
     download.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
+    currentMapName = name;
+    savedSnapshot = snapshot();
+    saveOptions.hidden = true;
     status.textContent = `Downloaded ${filename}. Add it to the maps folder and list it in maps/index.json to load it here.`;
+  };
+  document.getElementById('save-map').addEventListener('click', () => {
+    saveOptions.hidden = !saveOptions.hidden;
+    if (saveOptions.hidden) return;
+    nameInput.value = getDefaultMapName();
+    nameInput.focus();
+    nameInput.select();
+  });
+  document.getElementById('confirm-save').addEventListener('click', confirmSave);
+  nameInput.addEventListener('keydown', event => {
+    if (event.key === 'Enter') confirmSave();
+    else if (event.key === 'Escape') saveOptions.hidden = true;
   });
 
-  const mapList = document.getElementById('map-list');
   try {
     const catalogResponse = await fetch('maps/index.json');
     if (!catalogResponse.ok) throw new Error(`Unable to load map list (${catalogResponse.status}).`);
@@ -663,10 +694,11 @@ async function init() {
     }
     const filenames = catalog.maps.map(map => map.file);
     if (new Set(filenames).size !== filenames.length) throw new Error('The map list contains duplicate files.');
+    catalogMaps = catalog.maps;
     mapList.replaceChildren();
     if (!catalog.maps.length) {
       mapList.add(new Option('No maps available', ''));
-      document.getElementById('map-status').textContent =
+      status.textContent =
         'No maps are listed yet. Add map files to the maps folder and list them in maps/index.json.';
     } else {
       mapList.add(new Option('- select map -', ''));
@@ -674,14 +706,22 @@ async function init() {
       mapList.disabled = false;
     }
   } catch (error) {
-    document.getElementById('map-status').textContent = error.message;
+    status.textContent = error.message;
   }
   mapList.addEventListener('change', async () => {
-    if (!mapList.value) return;
+    const requestedFile = mapList.value;
+    if (!requestedFile) {
+      mapList.value = currentMapFile;
+      return;
+    }
+    if (hasUnsavedChanges() &&
+      !window.confirm('You have unsaved changes. Loading another map will discard them. Continue?')) {
+      mapList.value = currentMapFile;
+      return;
+    }
     const selectedMap = mapList.selectedOptions[0];
-    const status = document.getElementById('map-status');
     try {
-      const response = await fetch(`maps/${encodeURIComponent(mapList.value)}`);
+      const response = await fetch(`maps/${encodeURIComponent(requestedFile)}`);
       if (!response.ok) throw new Error(`Unable to load ${selectedMap.textContent} (${response.status}).`);
       const contentLength = Number(response.headers.get('content-length'));
       if (contentLength > 2 * 1024 * 1024) throw new Error('Map files must be 2 MB or smaller.');
@@ -692,7 +732,10 @@ async function init() {
       const mapData = JSON.parse(contents);
       const loadedRooms = validateMapData(mapData, canvas, config.itemColors, config.doorColors);
       rooms.splice(0, rooms.length, ...loadedRooms);
-      document.getElementById('map-name').value = mapData.name || selectedMap.textContent;
+      currentMapName = mapData.name || selectedMap.textContent;
+      currentMapFile = requestedFile;
+      savedSnapshot = snapshot();
+      saveOptions.hidden = true;
       selectedRoom = null;
       selectedPoi = null;
       selectedObstacle = null;
@@ -702,13 +745,12 @@ async function init() {
       shapePoints = [];
       updateRoomControls(config.itemColors);
       redraw();
-      status.textContent = `Loaded ${document.getElementById('map-name').value}.`;
+      status.textContent = `Loaded ${currentMapName}.`;
     } catch (error) {
+      mapList.value = currentMapFile;
       status.textContent = error instanceof SyntaxError
         ? 'The selected map is not valid JSON.'
         : error.message;
-    } finally {
-      mapList.value = '';
     }
   });
 

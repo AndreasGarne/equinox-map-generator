@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Equinox Map Generator</title>
-  <link rel="stylesheet" href="css/style.css?v=4">
+  <link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body>
   <header><h1>Equinox Map Generator</h1></header>
@@ -57,13 +57,14 @@
       </section>
       <section class="map-controls">
         <h2>Map</h2>
-        <label for="map-name">Map name</label>
-        <input id="map-name" type="text" maxlength="100" placeholder="Name this map">
-        <button id="save-map" type="button">Save map</button>
-        <label for="map-list">Load map</label>
-        <select id="map-list" disabled>
+        <select id="map-list" aria-label="Load map" disabled>
           <option value="">- select map -</option>
         </select>
+        <button id="save-map" type="button">Save map</button>
+        <div id="save-options" class="options" hidden>
+          <input id="map-name" type="text" maxlength="100" placeholder="Map name" aria-label="Map name">
+          <button id="confirm-save" type="button">OK</button>
+        </div>
         <p id="map-status" role="status" aria-live="polite"></p>
       </section>
     </aside>
@@ -71,6 +72,6 @@
       <div id="map-viewport"><canvas id="map" width="3840" height="2560" aria-describedby="map-help"></canvas></div>
     </main>
   </div>
-  <script type="module" src="js/main.js?v=4"></script>
+  <script type="module" src="js/main.js?v=5"></script>
 </body>
 </html>
