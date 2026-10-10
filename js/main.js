@@ -729,6 +729,7 @@ function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorCo
   const type = selectedPoi?.type || poiTypeInput.value;
   const colors = Object.fromEntries(Object.entries(itemColors)
     .filter(([name]) => name !== LEGACY_BLACK_COLOR));
+  const previousPoiColor = poiColorInput.value;
   poiColorInput.replaceChildren();
   for (const [name, color] of Object.entries(colors)) {
     const option = document.createElement('option');
@@ -737,7 +738,7 @@ function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorCo
     option.style.color = color;
     poiColorInput.append(option);
   }
-  const desiredColor = selectedPoi?.color || poiColorInput.value || getDefaultPoiColor(itemColors);
+  const desiredColor = selectedPoi?.color || previousPoiColor || getDefaultPoiColor(itemColors);
   poiColorInput.value = colors[desiredColor] ? desiredColor : getDefaultPoiColor(itemColors);
   if (selectedPoi && !POI_TYPES[selectedPoi.type]?.color && !colors[selectedPoi.color]) {
     selectedPoi.color = poiColorInput.value;
@@ -935,6 +936,27 @@ async function init() {
     }
   });
 
+  document.getElementById('new-map').addEventListener('click', () => {
+    if (hasUnsavedChanges() &&
+      !window.confirm('You have unsaved changes. Creating a new map will discard them. Continue?')) return;
+    rooms.splice(0, rooms.length);
+    currentMapName = '';
+    currentMapFile = '';
+    mapList.value = '';
+    savedSnapshot = snapshot();
+    saveOptions.hidden = true;
+    selectedRoom = null;
+    selectedPoi = null;
+    selectedObstacle = null;
+    selectedDoor = null;
+    interaction = null;
+    tool = 'select';
+    shapePoints = [];
+    updateRoomControls(config.itemColors);
+    redraw();
+    status.textContent = 'Started a new map.';
+  });
+
   const viewport = document.getElementById('map-viewport');
   const ZOOM_STEP = 1.5;
   const ZOOM_MARGIN = 16;
@@ -1036,6 +1058,7 @@ async function init() {
       selectedRoom.doors.splice(selectedRoom.doors.indexOf(selectedDoor), 1);
       selectedDoor = null;
     } else {
+      if (!window.confirm('Delete this room and everything in it?')) return;
       rooms.splice(rooms.indexOf(selectedRoom), 1);
       selectedRoom = null;
     }
