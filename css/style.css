@@ -10,6 +10,8 @@ h2 { margin: 0 0 8px; font-size: 1rem; }
 .tool-palette { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .tool-palette button { min-height: 44px; }
 .tool-palette button.active { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+.zoom-buttons { flex-direction: row; }
+.zoom-buttons button { flex: 1; min-height: 44px; font-size: 1.4rem; }
 .options { padding: 8px; background: #2a2a2a; border-radius: 4px; }
 main { flex: 1; min-width: 0; padding: 12px; display: flex; }
 #map-viewport { flex: 1; min-height: 0; overflow: auto; }

@@ -30,7 +30,7 @@ const TOOL_HELP = {
   door: 'Choose a colour, then click a room boundary to place a door.',
   obstacle: 'Choose spikes or wall, then click a tile inside a room to place it. Clicking an occupied tile replaces it.',
   pan: 'Drag to scroll the map.',
-  zoom: 'Click to zoom out until the whole grid fits the view; click again to return to full size. Shift-click zooms in.'
+  zoom: 'Use the + and - buttons, or pinch to zoom on a touch screen.'
 };
 
 async function loadConfig() {
@@ -957,6 +957,39 @@ async function init() {
     viewport.scrollLeft += bounds.left + fx * bounds.width - (event ? event.clientX : view.left + view.width / 2);
     viewport.scrollTop += bounds.top + fy * bounds.height - (event ? event.clientY : view.top + view.height / 2);
   };
+  const zoomOptions = document.getElementById('zoom-options');
+  const zoomBy = factor => applyZoom(zoom * factor);
+  document.getElementById('zoom-in').addEventListener('click', () => zoomBy(ZOOM_STEP));
+  document.getElementById('zoom-out').addEventListener('click', () => zoomBy(1 / ZOOM_STEP));
+  const touches = new Map();
+  let pinchDistance = 0;
+  const pinchDist = () => {
+    const [a, b] = [...touches.values()];
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  };
+  canvas.addEventListener('pointerdown', event => {
+    if (tool !== 'zoom' || event.pointerType !== 'touch') return;
+    touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    canvas.setPointerCapture(event.pointerId);
+    if (touches.size === 2) pinchDistance = pinchDist();
+  });
+  canvas.addEventListener('pointermove', event => {
+    if (tool !== 'zoom' || !touches.has(event.pointerId)) return;
+    touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (touches.size !== 2) return;
+    const distance = pinchDist();
+    if (pinchDistance > 0 && distance > 0) {
+      const [a, b] = [...touches.values()];
+      applyZoom(zoom * distance / pinchDistance, { clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 });
+    }
+    pinchDistance = distance;
+  });
+  const endTouch = event => {
+    touches.delete(event.pointerId);
+    pinchDistance = touches.size === 2 ? pinchDist() : 0;
+  };
+  canvas.addEventListener('pointerup', endTouch);
+  canvas.addEventListener('pointercancel', endTouch);
   window.addEventListener('resize', () => { if (zoom < 1) applyZoom(zoom); });
   const setTool = newTool => {
     tool = newTool;
@@ -967,7 +1000,9 @@ async function init() {
       selectedObstacle = null;
       selectedDoor = null;
     }
-    canvas.style.cursor = tool === 'pan' ? 'grab' : tool === 'zoom' ? 'zoom-out' : '';
+    touches.clear();
+    zoomOptions.hidden = tool !== 'zoom';
+    canvas.style.cursor = tool === 'pan' ? 'grab' : '';
     updateRoomControls(config.itemColors);
     redraw();
   };
@@ -1037,13 +1072,7 @@ async function init() {
   });
 
   canvas.addEventListener('pointerdown', event => {
-    if (tool === 'zoom') {
-      const minZoom = getMinZoom();
-      if (event.shiftKey) applyZoom(zoom * ZOOM_STEP, event);
-      else if (zoom <= minZoom + 1e-6) applyZoom(1, event);
-      else applyZoom(zoom / ZOOM_STEP, event);
-      return;
-    }
+    if (tool === 'zoom') return;
     if (tool === 'pan') {
       interaction = {
         type: 'pan',
