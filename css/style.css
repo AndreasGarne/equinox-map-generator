@@ -13,7 +13,7 @@ h2 { margin: 0 0 8px; font-size: 1rem; }
 .options { padding: 8px; background: #2a2a2a; border-radius: 4px; }
 main { flex: 1; min-width: 0; padding: 12px; display: flex; }
 #map-viewport { flex: 1; min-height: 0; overflow: auto; }
-canvas { background: #888; display: block; touch-action: none; }
+canvas { background: #888; display: block; touch-action: none; margin: 8px; box-shadow: 0 0 0 4px #000, 0 0 0 6px #ccc; }
 button, input, select { font: inherit; }
 @media (max-width: 700px) {
   .app { flex-direction: column; }

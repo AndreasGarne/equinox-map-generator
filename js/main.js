@@ -29,7 +29,8 @@ const TOOL_HELP = {
   poi: 'Choose a type and colour, then click a tile inside a room to place a point of interest.',
   door: 'Choose a colour, then click a room boundary to place a door.',
   obstacle: 'Choose spikes or wall, then click a tile inside a room to place it. Clicking an occupied tile replaces it.',
-  pan: 'Drag to scroll the map.'
+  pan: 'Drag to scroll the map.',
+  zoom: 'Click to zoom out until the whole grid fits the view; click again to return to full size. Shift-click zooms in.'
 };
 
 async function loadConfig() {
@@ -935,6 +936,28 @@ async function init() {
   });
 
   const viewport = document.getElementById('map-viewport');
+  const ZOOM_STEP = 1.5;
+  const ZOOM_MARGIN = 16;
+  let zoom = 1;
+  const getMinZoom = () => Math.min(1,
+    (viewport.clientWidth - ZOOM_MARGIN) / canvas.width,
+    (viewport.clientHeight - ZOOM_MARGIN) / canvas.height);
+  const applyZoom = (newZoom, event) => {
+    const minZoom = getMinZoom();
+    newZoom = Math.max(minZoom, Math.min(1, newZoom));
+    if (Math.abs(newZoom - minZoom) < 1e-6) newZoom = minZoom;
+    const oldBounds = canvas.getBoundingClientRect();
+    const fx = event ? (event.clientX - oldBounds.left) / oldBounds.width : 0.5;
+    const fy = event ? (event.clientY - oldBounds.top) / oldBounds.height : 0.5;
+    zoom = newZoom;
+    canvas.style.width = `${canvas.width * zoom}px`;
+    canvas.style.height = `${canvas.height * zoom}px`;
+    const bounds = canvas.getBoundingClientRect();
+    const view = viewport.getBoundingClientRect();
+    viewport.scrollLeft += bounds.left + fx * bounds.width - (event ? event.clientX : view.left + view.width / 2);
+    viewport.scrollTop += bounds.top + fy * bounds.height - (event ? event.clientY : view.top + view.height / 2);
+  };
+  window.addEventListener('resize', () => { if (zoom < 1) applyZoom(zoom); });
   const setTool = newTool => {
     tool = newTool;
     shapePoints = [];
@@ -944,7 +967,7 @@ async function init() {
       selectedObstacle = null;
       selectedDoor = null;
     }
-    canvas.style.cursor = tool === 'pan' ? 'grab' : '';
+    canvas.style.cursor = tool === 'pan' ? 'grab' : tool === 'zoom' ? 'zoom-out' : '';
     updateRoomControls(config.itemColors);
     redraw();
   };
@@ -1014,6 +1037,13 @@ async function init() {
   });
 
   canvas.addEventListener('pointerdown', event => {
+    if (tool === 'zoom') {
+      const minZoom = getMinZoom();
+      if (event.shiftKey) applyZoom(zoom * ZOOM_STEP, event);
+      else if (zoom <= minZoom + 1e-6) applyZoom(1, event);
+      else applyZoom(zoom / ZOOM_STEP, event);
+      return;
+    }
     if (tool === 'pan') {
       interaction = {
         type: 'pan',
