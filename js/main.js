@@ -1,4 +1,7 @@
 const TILE = 32;
+const LEGACY_BLACK_COLOR = 'black';
+const POI_BADGE_FILL = '#273449';
+const POI_BADGE_STROKE = '#f8fafc';
 const POI_TYPES = {
   weapon: { letter: 'W', color: '#111' },
   orb: { letter: 'O', color: '#1e3a8a' },
@@ -34,7 +37,8 @@ async function loadConfig() {
   if (!res.ok) throw new Error(`Unable to load colour configuration (${res.status})`);
   const config = await res.json();
   if (!config || typeof config !== 'object' || !config.itemColors || typeof config.itemColors !== 'object' ||
-    Array.isArray(config.itemColors) || !Object.keys(config.itemColors).some(name => name !== 'black')) {
+    Array.isArray(config.itemColors) ||
+    !Object.keys(config.itemColors).some(name => name !== LEGACY_BLACK_COLOR)) {
     throw new Error('At least one non-black POI color must be configured.');
   }
   return config;
@@ -128,8 +132,8 @@ function drawPoi(ctx, poi, x, y, color) {
   ctx.lineWidth = 1.8;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  ctx.fillStyle = '#273449';
-  ctx.strokeStyle = '#f8fafc';
+  ctx.fillStyle = POI_BADGE_FILL;
+  ctx.strokeStyle = POI_BADGE_STROKE;
   ctx.beginPath();
   ctx.arc(0, 0, 13, 0, Math.PI * 2);
   ctx.fill();
@@ -137,7 +141,7 @@ function drawPoi(ctx, poi, x, y, color) {
 
   if (poi.type === 'weapon') {
     ctx.fillStyle = '#cbd5e1';
-    ctx.strokeStyle = '#f8fafc';
+    ctx.strokeStyle = POI_BADGE_STROKE;
     ctx.lineWidth = 3.5;
     ctx.beginPath();
     ctx.moveTo(-2, -10);
@@ -146,7 +150,7 @@ function drawPoi(ctx, poi, x, y, color) {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
-    ctx.fillStyle = '#92400e';
+    ctx.fillStyle = color;
     ctx.beginPath();
     ctx.moveTo(-3, 1);
     ctx.lineTo(3, 1);
@@ -155,7 +159,7 @@ function drawPoi(ctx, poi, x, y, color) {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
-    ctx.strokeStyle = '#f8fafc';
+    ctx.strokeStyle = POI_BADGE_STROKE;
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(-5, 1);
@@ -652,9 +656,9 @@ function validateMapData(data, canvas, itemColors, doorColors) {
         !Number.isFinite(poi.x) || !Number.isFinite(poi.y) ||
         !Number.isInteger(poi.x * 2) || !Number.isInteger(poi.y * 2) ||
         !POI_TYPES[poi.type] ||
-        (!poiColors.has(poi.color) && poi.color !== 'black') ||
+        (!poiColors.has(poi.color) && poi.color !== LEGACY_BLACK_COLOR) ||
         !pointInPolygon(room.x + poi.x, room.y + poi.y, points)) invalid();
-      const color = poi.color === 'black' ? getDefaultPoiColor(itemColors) : poi.color;
+      const color = poi.color === LEGACY_BLACK_COLOR ? getDefaultPoiColor(itemColors) : poi.color;
       if (!color || !poiColors.has(color)) invalid();
       return { x: poi.x, y: poi.y, type: poi.type, color };
     });
@@ -698,7 +702,7 @@ function getMapFilename(name) {
 }
 
 function getDefaultPoiColor(itemColors) {
-  return Object.keys(itemColors).find(name => name !== 'black');
+  return Object.keys(itemColors).find(name => name !== LEGACY_BLACK_COLOR);
 }
 
 function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorColors) {
@@ -722,7 +726,8 @@ function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorCo
   if (selectedPoi) poiTypeInput.value = selectedPoi.type;
   if (selectedObstacle) document.getElementById('obstacle-type').value = selectedObstacle.type;
   const type = selectedPoi?.type || poiTypeInput.value;
-  const colors = Object.fromEntries(Object.entries(itemColors).filter(([name]) => name !== 'black'));
+  const colors = Object.fromEntries(Object.entries(itemColors)
+    .filter(([name]) => name !== LEGACY_BLACK_COLOR));
   poiColorInput.replaceChildren();
   for (const [name, color] of Object.entries(colors)) {
     const option = document.createElement('option');
