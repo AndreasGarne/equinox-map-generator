@@ -19,6 +19,7 @@
           <button type="button" data-tool="door" aria-pressed="false">Door</button>
           <button type="button" data-tool="select" aria-pressed="true">Select</button>
           <button type="button" data-tool="pan" aria-pressed="false">Pan</button>
+          <button type="button" data-tool="obstacle" aria-pressed="false">Obstacle</button>
         </div>
         <p id="map-help"></p>
         <div id="shape-options" class="options" hidden>
@@ -35,6 +36,7 @@
             <option value="boss">Boss (B)</option>
             <option value="key">Key (K)</option>
             <option value="ladder">Ladder (L)</option>
+            <option value="magic">Magic (M)</option>
           </select>
           <label for="poi-color">Colour</label>
           <select id="poi-color"></select>
@@ -42,6 +44,13 @@
         <div id="door-options" class="options" hidden>
           <label for="door-color">Door colour</label>
           <select id="door-color"></select>
+        </div>
+        <div id="obstacle-options" class="options" hidden>
+          <label for="obstacle-type">Obstacle type</label>
+          <select id="obstacle-type">
+            <option value="spikes">Spikes</option>
+            <option value="wall">Wall</option>
+          </select>
         </div>
         <p id="rainbow-door-note" hidden></p>
         <button id="delete-selected" type="button" disabled>Delete selected</button>
