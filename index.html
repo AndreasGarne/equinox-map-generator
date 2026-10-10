@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Equinox Map Generator</title>
-  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body>
   <header><h1>Equinox Map Generator</h1></header>
@@ -17,9 +17,10 @@
           <button type="button" data-tool="complex" aria-pressed="false">Complex room</button>
           <button type="button" data-tool="poi" aria-pressed="false">Point</button>
           <button type="button" data-tool="door" aria-pressed="false">Door</button>
+          <button type="button" data-tool="obstacle" aria-pressed="false">Obstacle</button>
           <button type="button" data-tool="select" aria-pressed="true">Select</button>
           <button type="button" data-tool="pan" aria-pressed="false">Pan</button>
-          <button type="button" data-tool="obstacle" aria-pressed="false">Obstacle</button>
+          <button type="button" data-tool="zoom" aria-pressed="false">Zoom</button>
         </div>
         <p id="map-help"></p>
         <div id="shape-options" class="options" hidden>
@@ -72,6 +73,6 @@
       <div id="map-viewport"><canvas id="map" width="3840" height="2560" aria-describedby="map-help"></canvas></div>
     </main>
   </div>
-  <script type="module" src="js/main.js?v=5"></script>
+  <script type="module" src="js/main.js?v=6"></script>
 </body>
 </html>
