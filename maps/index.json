@@ -3,6 +3,10 @@
     {
       "name": "Galadonia",
       "file": "galadonia.json"
+    },
+    {
+      "name": "Tori",
+      "file": "tori.json"
     }
   ]
 }
