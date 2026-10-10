@@ -649,7 +649,7 @@ function validateMapData(data, canvas, itemColors, doorColors) {
         !POI_TYPES[poi.type] || !poiColors.has(poi.color) ||
         !pointInPolygon(room.x + poi.x, room.y + poi.y, points)) invalid();
       const color = poi.color === 'black' && !POI_TYPES[poi.type].color
-        ? getDefaultPoiColor(poi.type, itemColors)
+        ? getDefaultPoiColor(itemColors)
         : poi.color;
       return { x: poi.x, y: poi.y, type: poi.type, color };
     });
@@ -692,8 +692,8 @@ function getMapFilename(name) {
     .replace(/-+/g, '-').replace(/^-|-$/g, '')}.json`;
 }
 
-function getDefaultPoiColor(type, itemColors) {
-  return Object.keys(itemColors).find(color => color !== 'black') || 'white';
+function getDefaultPoiColor(itemColors) {
+  return Object.keys(itemColors).find(color => color !== 'black') || '';
 }
 
 function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorColors) {
@@ -726,8 +726,8 @@ function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorCo
     option.style.color = color;
     poiColorInput.append(option);
   }
-  const desiredColor = selectedPoi?.color || poiColorInput.value || getDefaultPoiColor(type, itemColors);
-  poiColorInput.value = colors[desiredColor] ? desiredColor : getDefaultPoiColor(type, itemColors);
+  const desiredColor = selectedPoi?.color || poiColorInput.value || getDefaultPoiColor(itemColors);
+  poiColorInput.value = colors[desiredColor] ? desiredColor : getDefaultPoiColor(itemColors);
   if (selectedPoi && !POI_TYPES[selectedPoi.type]?.color && !colors[selectedPoi.color]) {
     selectedPoi.color = poiColorInput.value;
   }
@@ -770,12 +770,12 @@ async function init() {
   const poiTypeInput = document.getElementById('poi-type');
   const poiColorInput = document.getElementById('poi-color');
   const doorColorInput = document.getElementById('door-color');
-  poiColorInput.value = getDefaultPoiColor(poiTypeInput.value, config.itemColors);
+  poiColorInput.value = getDefaultPoiColor(config.itemColors);
   doorColorInput.value = config.doorColors[0] || '';
   poiTypeInput.addEventListener('change', () => {
     if (selectedPoi) {
       selectedPoi.type = poiTypeInput.value;
-      selectedPoi.color = getDefaultPoiColor(selectedPoi.type, config.itemColors);
+      selectedPoi.color = getDefaultPoiColor(config.itemColors);
     }
     updateRoomControls(config.itemColors);
     redraw();
