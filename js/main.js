@@ -988,7 +988,7 @@ async function init() {
     clearDraft(currentMapFile);
     banner.hidden = true;
     mapList.value = currentMapFile;
-    savedSnapshot = '';
+    savedSnapshot = snapshot();
     mapList.dispatchEvent(new Event('change'));
   });
   setInterval(() => {
