@@ -112,13 +112,165 @@ function drawGrid(ctx, w, h, preview = null, itemColors = {}) {
         ctx.lineWidth = 2;
         ctx.strokeRect(x - TILE / 2 + 2, y - TILE / 2 + 2, TILE - 4, TILE - 4);
       }
-      ctx.fillStyle = type.color || itemColors[poi.color] || '#111';
-      ctx.font = 'bold 20px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(type.letter, x, y);
+      drawPoi(ctx, poi, x, y, type.color || itemColors[poi.color] || '#111');
     }
   }
+}
+
+function drawPoi(ctx, poi, x, y, color) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.lineWidth = 1.8;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.strokeStyle = color;
+  ctx.beginPath();
+  ctx.arc(0, 0, 13, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  if (poi.type === 'weapon') {
+    ctx.fillStyle = '#cbd5e1';
+    ctx.beginPath();
+    ctx.moveTo(-4, -4);
+    ctx.lineTo(7, -10);
+    ctx.quadraticCurveTo(11, -11, 9, -7);
+    ctx.quadraticCurveTo(5, 0, -1, 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-8, -8);
+    ctx.lineTo(-4, -4);
+    ctx.moveTo(-7, -3);
+    ctx.quadraticCurveTo(-3, -8, 1, -9);
+    ctx.moveTo(-10, -10);
+    ctx.lineTo(-8, -8);
+    ctx.stroke();
+  } else if (poi.type === 'orb') {
+    const glow = ctx.createRadialGradient(-4, -5, 1, 0, 0, 11);
+    glow.addColorStop(0, '#fff');
+    glow.addColorStop(0.35, '#93c5fd');
+    glow.addColorStop(1, color);
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(0, 0, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(-3, -4, 2, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (poi.type === 'apple') {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(0, -3);
+    ctx.bezierCurveTo(-10, -10, -11, 1, -6, 7);
+    ctx.quadraticCurveTo(-2, 11, 0, 7);
+    ctx.quadraticCurveTo(4, 11, 7, 6);
+    ctx.bezierCurveTo(12, -3, 5, -9, 0, -3);
+    ctx.fill();
+    ctx.strokeStyle = '#365314';
+    ctx.beginPath();
+    ctx.moveTo(0, -4);
+    ctx.lineTo(1, -9);
+    ctx.quadraticCurveTo(5, -11, 7, -8);
+    ctx.quadraticCurveTo(3, -6, 1, -6);
+    ctx.stroke();
+  } else if (poi.type === 'potion') {
+    ctx.fillStyle = '#e0f2fe';
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-3, -9);
+    ctx.lineTo(3, -9);
+    ctx.lineTo(3, -5);
+    ctx.quadraticCurveTo(10, -1, 8, 7);
+    ctx.quadraticCurveTo(7, 10, 0, 10);
+    ctx.quadraticCurveTo(-7, 10, -8, 7);
+    ctx.quadraticCurveTo(-10, -1, -3, -5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.fillRect(-6, 2, 12, 5);
+    ctx.strokeRect(-6, 2, 12, 5);
+    ctx.fillStyle = '#fef3c7';
+    ctx.fillRect(-4, -12, 8, 3);
+    ctx.strokeRect(-4, -12, 8, 3);
+  } else if (poi.type === 'boss') {
+    ctx.fillStyle = '#fff';
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-7, -4);
+    ctx.lineTo(-10, -10);
+    ctx.lineTo(-3, -7);
+    ctx.quadraticCurveTo(0, -10, 3, -7);
+    ctx.lineTo(10, -10);
+    ctx.lineTo(7, -3);
+    ctx.lineTo(6, 5);
+    ctx.lineTo(2, 9);
+    ctx.lineTo(-5, 9);
+    ctx.lineTo(-8, 5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.fillRect(-5, -2, 3, 4);
+    ctx.fillRect(2, -2, 3, 4);
+    ctx.fillRect(-3, 6, 2, 3);
+    ctx.fillRect(1, 6, 2, 3);
+  } else if (poi.type === 'key') {
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.arc(-5, -4, 4, 0, Math.PI * 2);
+    ctx.moveTo(-2, -1);
+    ctx.lineTo(7, 8);
+    ctx.lineTo(10, 5);
+    ctx.moveTo(4, 5);
+    ctx.lineTo(7, 2);
+    ctx.stroke();
+  } else if (poi.type === 'ladder') {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(-6, -9);
+    ctx.lineTo(-6, 9);
+    ctx.moveTo(6, -9);
+    ctx.lineTo(6, 9);
+    for (const rung of [-5, 0, 5]) {
+      ctx.moveTo(-6, rung);
+      ctx.lineTo(6, rung);
+    }
+    ctx.stroke();
+  } else if (poi.type === 'magic') {
+    ctx.fillStyle = '#eff6ff';
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-7, -8);
+    ctx.lineTo(6, -8);
+    ctx.lineTo(6, 8);
+    ctx.lineTo(-7, 8);
+    ctx.quadraticCurveTo(-10, 8, -10, 5);
+    ctx.quadraticCurveTo(-10, 2, -7, 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(-7, -5, 3, 0, Math.PI * 2);
+    ctx.arc(-7, 5, 3, 0, Math.PI * 2);
+    ctx.moveTo(-4, -3);
+    ctx.lineTo(3, -3);
+    ctx.moveTo(-4, 1);
+    ctx.lineTo(3, 1);
+    ctx.moveTo(-4, 5);
+    ctx.lineTo(2, 5);
+    ctx.stroke();
+  }
+
+  ctx.restore();
 }
 
 function drawObstacle(ctx, room, obstacle, isSelected) {
