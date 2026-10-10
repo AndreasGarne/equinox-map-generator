@@ -123,8 +123,8 @@ function drawPoi(ctx, poi, x, y, color) {
   ctx.lineWidth = 1.8;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  ctx.strokeStyle = color;
+  ctx.fillStyle = '#273449';
+  ctx.strokeStyle = '#f8fafc';
   ctx.beginPath();
   ctx.arc(0, 0, 13, 0, Math.PI * 2);
   ctx.fill();
@@ -132,22 +132,29 @@ function drawPoi(ctx, poi, x, y, color) {
 
   if (poi.type === 'weapon') {
     ctx.fillStyle = '#cbd5e1';
+    ctx.strokeStyle = '#f8fafc';
+    ctx.lineWidth = 3.5;
     ctx.beginPath();
-    ctx.moveTo(-4, -4);
-    ctx.lineTo(7, -10);
-    ctx.quadraticCurveTo(11, -11, 9, -7);
-    ctx.quadraticCurveTo(5, 0, -1, 2);
+    ctx.moveTo(-2, -10);
+    ctx.lineTo(3, 1);
+    ctx.lineTo(-3, 1);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
-    ctx.strokeStyle = color;
+    ctx.fillStyle = '#92400e';
     ctx.beginPath();
-    ctx.moveTo(-8, -8);
-    ctx.lineTo(-4, -4);
-    ctx.moveTo(-7, -3);
-    ctx.quadraticCurveTo(-3, -8, 1, -9);
-    ctx.moveTo(-10, -10);
-    ctx.lineTo(-8, -8);
+    ctx.moveTo(-3, 1);
+    ctx.lineTo(3, 1);
+    ctx.lineTo(2, 8);
+    ctx.lineTo(-2, 8);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = '#f8fafc';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(-5, 1);
+    ctx.lineTo(5, 1);
     ctx.stroke();
   } else if (poi.type === 'orb') {
     const glow = ctx.createRadialGradient(-4, -5, 1, 0, 0, 11);
@@ -159,6 +166,7 @@ function drawPoi(ctx, poi, x, y, color) {
     ctx.arc(0, 0, 9, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = color;
+    ctx.lineWidth = 1.8;
     ctx.stroke();
     ctx.fillStyle = '#fff';
     ctx.beginPath();
@@ -174,6 +182,7 @@ function drawPoi(ctx, poi, x, y, color) {
     ctx.bezierCurveTo(12, -3, 5, -9, 0, -3);
     ctx.fill();
     ctx.strokeStyle = '#365314';
+    ctx.lineWidth = 1.8;
     ctx.beginPath();
     ctx.moveTo(0, -4);
     ctx.lineTo(1, -9);
@@ -183,6 +192,7 @@ function drawPoi(ctx, poi, x, y, color) {
   } else if (poi.type === 'potion') {
     ctx.fillStyle = '#e0f2fe';
     ctx.strokeStyle = color;
+    ctx.lineWidth = 1.8;
     ctx.beginPath();
     ctx.moveTo(-3, -9);
     ctx.lineTo(3, -9);
@@ -203,6 +213,7 @@ function drawPoi(ctx, poi, x, y, color) {
   } else if (poi.type === 'boss') {
     ctx.fillStyle = '#fff';
     ctx.strokeStyle = color;
+    ctx.lineWidth = 1.8;
     ctx.beginPath();
     ctx.moveTo(-7, -4);
     ctx.lineTo(-10, -10);
@@ -224,6 +235,7 @@ function drawPoi(ctx, poi, x, y, color) {
     ctx.fillRect(1, 6, 2, 3);
   } else if (poi.type === 'key') {
     ctx.strokeStyle = color;
+    ctx.lineWidth = 1.8;
     ctx.beginPath();
     ctx.arc(-5, -4, 4, 0, Math.PI * 2);
     ctx.moveTo(-2, -1);
@@ -248,6 +260,7 @@ function drawPoi(ctx, poi, x, y, color) {
   } else if (poi.type === 'magic') {
     ctx.fillStyle = '#eff6ff';
     ctx.strokeStyle = color;
+    ctx.lineWidth = 1.8;
     ctx.beginPath();
     ctx.moveTo(-7, -8);
     ctx.lineTo(6, -8);
@@ -635,7 +648,10 @@ function validateMapData(data, canvas, itemColors, doorColors) {
         !Number.isInteger(poi.x * 2) || !Number.isInteger(poi.y * 2) ||
         !POI_TYPES[poi.type] || !poiColors.has(poi.color) ||
         !pointInPolygon(room.x + poi.x, room.y + poi.y, points)) invalid();
-      return { x: poi.x, y: poi.y, type: poi.type, color: poi.color };
+      const color = poi.color === 'black' && !POI_TYPES[poi.type].color
+        ? getDefaultPoiColor(poi.type, itemColors)
+        : poi.color;
+      return { x: poi.x, y: poi.y, type: poi.type, color };
     });
     const doors = room.doors.map(door => {
       if (!door || typeof door !== 'object' || Array.isArray(door) ||
@@ -677,7 +693,7 @@ function getMapFilename(name) {
 }
 
 function getDefaultPoiColor(type, itemColors) {
-  return type === 'key' ? 'black' : Object.keys(itemColors)[0] || 'black';
+  return Object.keys(itemColors).find(color => color !== 'black') || 'white';
 }
 
 function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorColors) {
@@ -701,7 +717,7 @@ function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorCo
   if (selectedPoi) poiTypeInput.value = selectedPoi.type;
   if (selectedObstacle) document.getElementById('obstacle-type').value = selectedObstacle.type;
   const type = selectedPoi?.type || poiTypeInput.value;
-  const colors = { ...itemColors, black: itemColors.black || '#000000' };
+  const colors = Object.fromEntries(Object.entries(itemColors).filter(([name]) => name !== 'black'));
   poiColorInput.replaceChildren();
   for (const [name, color] of Object.entries(colors)) {
     const option = document.createElement('option');
@@ -712,7 +728,9 @@ function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorCo
   }
   const desiredColor = selectedPoi?.color || poiColorInput.value || getDefaultPoiColor(type, itemColors);
   poiColorInput.value = colors[desiredColor] ? desiredColor : getDefaultPoiColor(type, itemColors);
-  if (selectedPoi && !colors[selectedPoi.color]) selectedPoi.color = poiColorInput.value;
+  if (selectedPoi && !POI_TYPES[selectedPoi.type]?.color && !colors[selectedPoi.color]) {
+    selectedPoi.color = poiColorInput.value;
+  }
   poiColorInput.disabled = Boolean(POI_TYPES[type]?.color);
   const color = selectedDoor?.color || doorColorInput.value || doorColors[0];
   doorColorInput.replaceChildren();
