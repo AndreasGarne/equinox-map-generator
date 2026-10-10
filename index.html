@@ -70,6 +70,12 @@
           <input id="map-name" type="text" maxlength="100" placeholder="Map name" aria-label="Map name">
           <button id="confirm-save" type="button">OK</button>
         </div>
+        <div id="draft-banner" class="options" hidden>
+          <span id="draft-banner-text"></span>
+          <button id="draft-repo" type="button">Load repo version</button>
+          <button id="draft-keep" type="button">Keep my draft</button>
+          <button id="draft-download" type="button">Download draft</button>
+        </div>
         <p id="map-status" role="status" aria-live="polite"></p>
       </section>
     </aside>
@@ -77,6 +83,6 @@
       <div id="map-viewport"><canvas id="map" width="3840" height="2560" aria-describedby="map-help"></canvas></div>
     </main>
   </div>
-  <script type="module" src="js/main.js?v=7"></script>
+  <script type="module" src="js/main.js?v=8"></script>
 </body>
 </html>

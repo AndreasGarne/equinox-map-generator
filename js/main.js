@@ -1,3 +1,4 @@
+import { hashText, getDraft, saveDraft, clearDraft } from './storage.js';
 const TILE = 32;
 const LEGACY_BLACK_COLOR = 'black';
 const POI_BADGE_FILL = '#273449';
@@ -820,6 +821,11 @@ async function init() {
   let currentMapFile = '';
   const snapshot = () => JSON.stringify(createMapData(canvas, '').rooms);
   let savedSnapshot = snapshot();
+  let repoSnapshot = null;
+  let repoHash = '';
+  let draftSnapshot = null;
+  const banner = document.getElementById('draft-banner');
+  const bannerText = document.getElementById('draft-banner-text');
   const hasUnsavedChanges = () => snapshot() !== savedSnapshot;
 
   const getDefaultMapName = () => {
@@ -912,21 +918,51 @@ async function init() {
       }
       const mapData = JSON.parse(contents);
       const loadedRooms = validateMapData(mapData, canvas, config.itemColors, config.doorColors);
-      rooms.splice(0, rooms.length, ...loadedRooms);
+      const applyRooms = list => {
+        rooms.splice(0, rooms.length, ...list);
+        selectedRoom = null;
+        selectedPoi = null;
+        selectedObstacle = null;
+        selectedDoor = null;
+        interaction = null;
+        shapePoints = [];
+        updateRoomControls(config.itemColors);
+        redraw();
+      };
+      applyRooms(loadedRooms);
       currentMapName = mapData.name || selectedMap.textContent;
       currentMapFile = requestedFile;
       savedSnapshot = snapshot();
+      repoSnapshot = savedSnapshot;
+      repoHash = await hashText(repoSnapshot);
+      draftSnapshot = repoSnapshot;
+      banner.hidden = true;
+      let draftMessage = '';
+      const draft = getDraft(requestedFile);
+      if (draft) {
+        try {
+          const draftRooms = validateMapData({ ...createMapData(canvas, currentMapName), rooms: draft.rooms },
+            canvas, config.itemColors, config.doorColors);
+          applyRooms(draftRooms);
+          draftSnapshot = snapshot();
+          const changedUpstream = draft.baseHash !== repoHash;
+          if (draftSnapshot === repoSnapshot) {
+            clearDraft(requestedFile);
+          } else {
+            bannerText.textContent = (changedUpstream
+              ? 'Repo version changed since your saved draft. Update advised. '
+              : 'Restored your saved draft; it differs from the repo. ') +
+              `Draft saved ${new Date(draft.savedAt).toLocaleString()}.`;
+            banner.hidden = false;
+            draftMessage = ' Your draft differs from the repo.';
+          }
+        } catch {
+          clearDraft(requestedFile);
+        }
+      }
       saveOptions.hidden = true;
-      selectedRoom = null;
-      selectedPoi = null;
-      selectedObstacle = null;
-      selectedDoor = null;
-      interaction = null;
       tool = 'select';
-      shapePoints = [];
-      updateRoomControls(config.itemColors);
-      redraw();
-      status.textContent = `Loaded ${currentMapName}.`;
+      status.textContent = `Loaded ${currentMapName}.${draftMessage || ' Up to date with repo.'}`;
     } catch (error) {
       mapList.value = currentMapFile;
       status.textContent = error instanceof SyntaxError
@@ -934,6 +970,39 @@ async function init() {
         : error.message;
     }
   });
+
+  const downloadJson = (name, data) => {
+    const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = name;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+  document.getElementById('draft-keep').addEventListener('click', () => { banner.hidden = true; });
+  document.getElementById('draft-download').addEventListener('click', () => {
+    downloadJson(currentMapFile, createMapData(canvas, currentMapName));
+  });
+  document.getElementById('draft-repo').addEventListener('click', () => {
+    if (!currentMapFile || !window.confirm('Discard your draft and reload the repo version?')) return;
+    clearDraft(currentMapFile);
+    banner.hidden = true;
+    mapList.value = currentMapFile;
+    savedSnapshot = '';
+    mapList.dispatchEvent(new Event('change'));
+  });
+  setInterval(() => {
+    if (!currentMapFile || repoSnapshot === null) return;
+    const current = snapshot();
+    if (current === draftSnapshot) return;
+    draftSnapshot = current;
+    if (current === repoSnapshot) {
+      clearDraft(currentMapFile);
+      status.textContent = 'Up to date with repo.';
+    } else if (saveDraft(currentMapFile, repoHash, createMapData(canvas, '').rooms)) {
+      status.textContent = 'Draft saved in this browser; it differs from the repo.';
+    }
+  }, 1000);
 
   const viewport = document.getElementById('map-viewport');
   const ZOOM_STEP = 1.5;
