@@ -991,8 +991,8 @@ async function init() {
       (viewport.clientWidth - ZOOM_MARGIN) / (maxX - minX),
       (viewport.clientHeight - ZOOM_MARGIN) / (maxY - minY));
     applyZoom(fit);
-    viewport.scrollLeft = (minX + maxX) / 2 * zoom - viewport.clientWidth / 2;
-    viewport.scrollTop = (minY + maxY) / 2 * zoom - viewport.clientHeight / 2;
+    viewport.scrollLeft = (minX + maxX) / 2 * zoom + canvas.offsetLeft - viewport.clientWidth / 2;
+    viewport.scrollTop = (minY + maxY) / 2 * zoom + canvas.offsetTop - viewport.clientHeight / 2;
   };
   const zoomOptions = document.getElementById('zoom-options');
   const zoomBy = factor => applyZoom(zoom * factor);
