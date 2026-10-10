@@ -3,68 +3,67 @@
   "version": 1,
   "name": "Galadonia",
   "grid": {
-    "width": 960,
-    "height": 640,
+    "width": 3840,
+    "height": 2560,
     "tileSize": 32
   },
   "rooms": [
     {
-      "x": 8,
-      "y": 5,
+      "x": 67,
+      "y": 57,
       "width": 9,
       "height": 9,
       "points": [
         {
-          "x": 10,
-          "y": 5
+          "x": 69,
+          "y": 57
         },
         {
-          "x": 15,
-          "y": 5
+          "x": 74,
+          "y": 57
         },
         {
-          "x": 15,
-          "y": 7
+          "x": 74,
+          "y": 59
         },
         {
-          "x": 17,
-          "y": 7
+          "x": 76,
+          "y": 59
         },
         {
-          "x": 17,
-          "y": 12
+          "x": 76,
+          "y": 64
         },
         {
-          "x": 15,
-          "y": 12
+          "x": 74,
+          "y": 64
         },
         {
-          "x": 15,
-          "y": 14
+          "x": 74,
+          "y": 66
         },
         {
-          "x": 10,
-          "y": 14
+          "x": 69,
+          "y": 66
         },
         {
-          "x": 10,
-          "y": 12
+          "x": 69,
+          "y": 64
         },
         {
-          "x": 8,
-          "y": 12
+          "x": 67,
+          "y": 64
         },
         {
-          "x": 8,
-          "y": 7
+          "x": 67,
+          "y": 59
         },
         {
-          "x": 10,
-          "y": 7
+          "x": 69,
+          "y": 59
         }
       ],
       "shape": "polygon",
-      "name": "Room 1",
       "pois": [
         {
           "x": 4.5,
@@ -98,33 +97,33 @@
           "orientation": "horizontal",
           "color": "none"
         }
-      ]
+      ],
+      "obstacles": []
     },
     {
-      "x": 10,
-      "y": 14,
+      "x": 69,
+      "y": 66,
       "width": 5,
       "height": 5,
       "points": [
         {
-          "x": 10,
-          "y": 14
+          "x": 69,
+          "y": 66
         },
         {
-          "x": 15,
-          "y": 14
+          "x": 74,
+          "y": 66
         },
         {
-          "x": 15,
-          "y": 19
+          "x": 74,
+          "y": 71
         },
         {
-          "x": 10,
-          "y": 19
+          "x": 69,
+          "y": 71
         }
       ],
       "shape": "rectangle",
-      "name": "Room 2",
       "pois": [
         {
           "x": 2.5,
@@ -140,33 +139,33 @@
           "orientation": "horizontal",
           "color": "rainbow"
         }
-      ]
+      ],
+      "obstacles": []
     },
     {
-      "x": 17,
-      "y": 7,
+      "x": 76,
+      "y": 59,
       "width": 5,
       "height": 5,
       "points": [
         {
-          "x": 17,
-          "y": 7
+          "x": 76,
+          "y": 59
         },
         {
-          "x": 22,
-          "y": 7
+          "x": 81,
+          "y": 59
         },
         {
-          "x": 22,
-          "y": 12
+          "x": 81,
+          "y": 64
         },
         {
-          "x": 17,
-          "y": 12
+          "x": 76,
+          "y": 64
         }
       ],
       "shape": "rectangle",
-      "name": "Room 3",
       "pois": [
         {
           "x": 2.5,
@@ -182,33 +181,44 @@
           "orientation": "vertical",
           "color": "none"
         }
+      ],
+      "obstacles": [
+        {
+          "x": 1,
+          "y": 2,
+          "type": "wall"
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "type": "wall"
+        }
       ]
     },
     {
-      "x": 10,
-      "y": 0,
+      "x": 69,
+      "y": 52,
       "width": 5,
       "height": 5,
       "points": [
         {
-          "x": 10,
-          "y": 0
+          "x": 69,
+          "y": 52
         },
         {
-          "x": 15,
-          "y": 0
+          "x": 74,
+          "y": 52
         },
         {
-          "x": 15,
-          "y": 5
+          "x": 74,
+          "y": 57
         },
         {
-          "x": 10,
-          "y": 5
+          "x": 69,
+          "y": 57
         }
       ],
       "shape": "rectangle",
-      "name": "Room 4",
       "pois": [
         {
           "x": 0.5,
@@ -241,8 +251,813 @@
           "y": 5,
           "orientation": "horizontal",
           "color": "none"
+        },
+        {
+          "x": 2.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": [
+        {
+          "x": 4,
+          "y": 3,
+          "type": "spikes"
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "type": "spikes"
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "type": "spikes"
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "type": "spikes"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "type": "spikes"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "type": "spikes"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "type": "spikes"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "type": "spikes"
         }
       ]
+    },
+    {
+      "x": 70,
+      "y": 41,
+      "width": 3,
+      "height": 11,
+      "points": [
+        {
+          "x": 70,
+          "y": 41
+        },
+        {
+          "x": 73,
+          "y": 41
+        },
+        {
+          "x": 73,
+          "y": 52
+        },
+        {
+          "x": 70,
+          "y": 52
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 1.5,
+          "y": 8.5,
+          "type": "apple",
+          "color": "green"
+        },
+        {
+          "x": 1.5,
+          "y": 2.5,
+          "type": "apple",
+          "color": "green"
+        }
+      ],
+      "doors": [
+        {
+          "x": 1.5,
+          "y": 11,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 1.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": [
+        {
+          "x": 2,
+          "y": 5,
+          "type": "wall"
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "type": "wall"
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "type": "wall"
+        }
+      ]
+    },
+    {
+      "x": 62,
+      "y": 59,
+      "width": 5,
+      "height": 5,
+      "points": [
+        {
+          "x": 62,
+          "y": 59
+        },
+        {
+          "x": 67,
+          "y": 59
+        },
+        {
+          "x": 67,
+          "y": 64
+        },
+        {
+          "x": 62,
+          "y": 64
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 1.5,
+          "y": 2.5,
+          "type": "orb",
+          "color": "white"
+        }
+      ],
+      "doors": [
+        {
+          "x": 5,
+          "y": 2.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 0,
+          "y": 2.5,
+          "orientation": "vertical",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 51,
+      "y": 60,
+      "width": 11,
+      "height": 3,
+      "points": [
+        {
+          "x": 51,
+          "y": 60
+        },
+        {
+          "x": 62,
+          "y": 60
+        },
+        {
+          "x": 62,
+          "y": 63
+        },
+        {
+          "x": 51,
+          "y": 63
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 3.5,
+          "y": 1.5,
+          "type": "apple",
+          "color": "green"
+        },
+        {
+          "x": 7.5,
+          "y": 1.5,
+          "type": "apple",
+          "color": "green"
+        },
+        {
+          "x": 4.5,
+          "y": 1.5,
+          "type": "orb",
+          "color": "white"
+        },
+        {
+          "x": 6.5,
+          "y": 1.5,
+          "type": "orb",
+          "color": "white"
+        }
+      ],
+      "doors": [
+        {
+          "x": 11,
+          "y": 1.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 0,
+          "y": 1.5,
+          "orientation": "vertical",
+          "color": "none"
+        }
+      ],
+      "obstacles": [
+        {
+          "x": 5,
+          "y": 2,
+          "type": "spikes"
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "type": "spikes"
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "type": "spikes"
+        }
+      ]
+    },
+    {
+      "x": 44,
+      "y": 58,
+      "width": 7,
+      "height": 7,
+      "points": [
+        {
+          "x": 44,
+          "y": 58
+        },
+        {
+          "x": 51,
+          "y": 58
+        },
+        {
+          "x": 51,
+          "y": 65
+        },
+        {
+          "x": 44,
+          "y": 65
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 3.5,
+          "y": 3.5,
+          "type": "ladder",
+          "color": "white"
+        }
+      ],
+      "doors": [
+        {
+          "x": 7,
+          "y": 3.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 3.5,
+          "y": 7,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 0,
+          "y": 3.5,
+          "orientation": "vertical",
+          "color": "white"
+        },
+        {
+          "x": 3.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "rainbow"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 45,
+      "y": 65,
+      "width": 5,
+      "height": 5,
+      "points": [
+        {
+          "x": 45,
+          "y": 65
+        },
+        {
+          "x": 50,
+          "y": 65
+        },
+        {
+          "x": 50,
+          "y": 70
+        },
+        {
+          "x": 45,
+          "y": 70
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 4.5,
+          "y": 4.5,
+          "type": "orb",
+          "color": "white"
+        },
+        {
+          "x": 2.5,
+          "y": 4.5,
+          "type": "orb",
+          "color": "white"
+        },
+        {
+          "x": 0.5,
+          "y": 4.5,
+          "type": "orb",
+          "color": "white"
+        }
+      ],
+      "doors": [
+        {
+          "x": 2.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 45,
+      "y": 53,
+      "width": 5,
+      "height": 5,
+      "points": [
+        {
+          "x": 45,
+          "y": 53
+        },
+        {
+          "x": 50,
+          "y": 53
+        },
+        {
+          "x": 50,
+          "y": 58
+        },
+        {
+          "x": 45,
+          "y": 58
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 2.5,
+          "y": 0.5,
+          "type": "magic",
+          "color": "white"
+        }
+      ],
+      "doors": [
+        {
+          "x": 2.5,
+          "y": 5,
+          "orientation": "horizontal",
+          "color": "rainbow"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 66,
+      "y": 23,
+      "width": 7,
+      "height": 7,
+      "points": [
+        {
+          "x": 66,
+          "y": 23
+        },
+        {
+          "x": 73,
+          "y": 23
+        },
+        {
+          "x": 73,
+          "y": 30
+        },
+        {
+          "x": 66,
+          "y": 30
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 4.5,
+          "y": 1.5,
+          "type": "ladder",
+          "color": "white"
+        }
+      ],
+      "doors": [
+        {
+          "x": 0.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 5.5,
+          "y": 7,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 0,
+          "y": 3.5,
+          "orientation": "vertical",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 62,
+      "y": 30,
+      "width": 11,
+      "height": 11,
+      "points": [
+        {
+          "x": 62,
+          "y": 30
+        },
+        {
+          "x": 62,
+          "y": 33
+        },
+        {
+          "x": 70,
+          "y": 33
+        },
+        {
+          "x": 70,
+          "y": 41
+        },
+        {
+          "x": 73,
+          "y": 41
+        },
+        {
+          "x": 73,
+          "y": 30
+        }
+      ],
+      "shape": "polygon",
+      "pois": [
+        {
+          "x": 9.5,
+          "y": 7.5,
+          "type": "orb",
+          "color": "white"
+        },
+        {
+          "x": 1.5,
+          "y": 1.5,
+          "type": "apple",
+          "color": "green"
+        }
+      ],
+      "doors": [
+        {
+          "x": 9.5,
+          "y": 11,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 9.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 1.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 59,
+      "y": 23,
+      "width": 7,
+      "height": 7,
+      "points": [
+        {
+          "x": 59,
+          "y": 23
+        },
+        {
+          "x": 66,
+          "y": 23
+        },
+        {
+          "x": 66,
+          "y": 30
+        },
+        {
+          "x": 59,
+          "y": 30
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 3.5,
+          "y": 5.5,
+          "type": "key",
+          "color": "white"
+        }
+      ],
+      "doors": [
+        {
+          "x": 4.5,
+          "y": 7,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 7,
+          "y": 3.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 4.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": [
+        {
+          "x": 6,
+          "y": 4,
+          "type": "spikes"
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "type": "spikes"
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "type": "spikes"
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "type": "spikes"
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "type": "spikes"
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "type": "spikes"
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "type": "spikes"
+        }
+      ]
+    },
+    {
+      "x": 63,
+      "y": 17,
+      "width": 6,
+      "height": 6,
+      "points": [
+        {
+          "x": 63,
+          "y": 17
+        },
+        {
+          "x": 69,
+          "y": 17
+        },
+        {
+          "x": 69,
+          "y": 23
+        },
+        {
+          "x": 63,
+          "y": 23
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 0.5,
+          "y": 0.5,
+          "type": "potion",
+          "color": "green"
+        },
+        {
+          "x": 2.5,
+          "y": 0.5,
+          "type": "potion",
+          "color": "green"
+        },
+        {
+          "x": 3.5,
+          "y": 0.5,
+          "type": "potion",
+          "color": "green"
+        },
+        {
+          "x": 5.5,
+          "y": 0.5,
+          "type": "potion",
+          "color": "green"
+        }
+      ],
+      "doors": [
+        {
+          "x": 0.5,
+          "y": 6,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 3.5,
+          "y": 6,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 33,
+      "y": 52,
+      "width": 11,
+      "height": 11,
+      "points": [
+        {
+          "x": 36,
+          "y": 60
+        },
+        {
+          "x": 44,
+          "y": 60
+        },
+        {
+          "x": 44,
+          "y": 63
+        },
+        {
+          "x": 33,
+          "y": 63
+        },
+        {
+          "x": 33,
+          "y": 52
+        },
+        {
+          "x": 36,
+          "y": 52
+        }
+      ],
+      "shape": "polygon",
+      "pois": [],
+      "doors": [
+        {
+          "x": 11,
+          "y": 9.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 1.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "rainbow"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 30,
+      "y": 43,
+      "width": 9,
+      "height": 9,
+      "points": [
+        {
+          "x": 30,
+          "y": 45
+        },
+        {
+          "x": 32,
+          "y": 45
+        },
+        {
+          "x": 32,
+          "y": 43
+        },
+        {
+          "x": 37,
+          "y": 43
+        },
+        {
+          "x": 37,
+          "y": 45
+        },
+        {
+          "x": 39,
+          "y": 45
+        },
+        {
+          "x": 39,
+          "y": 50
+        },
+        {
+          "x": 37,
+          "y": 50
+        },
+        {
+          "x": 37,
+          "y": 52
+        },
+        {
+          "x": 32,
+          "y": 52
+        },
+        {
+          "x": 32,
+          "y": 50
+        },
+        {
+          "x": 30,
+          "y": 50
+        }
+      ],
+      "shape": "polygon",
+      "pois": [
+        {
+          "x": 4.5,
+          "y": 4.5,
+          "type": "boss",
+          "color": "white"
+        }
+      ],
+      "doors": [
+        {
+          "x": 4.5,
+          "y": 9,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
     }
   ]
 }
