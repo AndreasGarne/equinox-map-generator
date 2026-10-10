@@ -32,7 +32,12 @@ const TOOL_HELP = {
 async function loadConfig() {
   const res = await fetch('config/colors.json');
   if (!res.ok) throw new Error(`Unable to load colour configuration (${res.status})`);
-  return res.json();
+  const config = await res.json();
+  if (!config || typeof config !== 'object' || !config.itemColors || typeof config.itemColors !== 'object' ||
+    Array.isArray(config.itemColors) || !Object.keys(config.itemColors).some(name => name !== 'black')) {
+    throw new Error('At least one non-black POI color must be configured.');
+  }
+  return config;
 }
 
 function drawGrid(ctx, w, h, preview = null, itemColors = {}) {
@@ -649,9 +654,7 @@ function validateMapData(data, canvas, itemColors, doorColors) {
         !POI_TYPES[poi.type] ||
         (!poiColors.has(poi.color) && poi.color !== 'black') ||
         !pointInPolygon(room.x + poi.x, room.y + poi.y, points)) invalid();
-      const color = poi.color === 'black' && !POI_TYPES[poi.type].color
-        ? getDefaultPoiColor(itemColors)
-        : poi.color;
+      const color = poi.color === 'black' ? getDefaultPoiColor(itemColors) : poi.color;
       return { x: poi.x, y: poi.y, type: poi.type, color };
     });
     const doors = room.doors.map(door => {
@@ -694,9 +697,7 @@ function getMapFilename(name) {
 }
 
 function getDefaultPoiColor(itemColors) {
-  const color = Object.keys(itemColors).find(name => name !== 'black');
-  if (!color) throw new Error('At least one non-black POI colour must be configured.');
-  return color;
+  return Object.keys(itemColors).find(name => name !== 'black');
 }
 
 function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorColors) {
@@ -1220,4 +1221,5 @@ init().catch(error => {
   console.error(error);
   document.getElementById('map-help').textContent =
     'The map could not be loaded. Check that it is served over HTTP and try again.';
+  document.getElementById('map-status').textContent = error.message;
 });
