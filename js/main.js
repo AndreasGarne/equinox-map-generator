@@ -927,6 +927,7 @@ async function init() {
       shapePoints = [];
       updateRoomControls(config.itemColors);
       redraw();
+      fitToContent();
       status.textContent = `Loaded ${currentMapName}.`;
     } catch (error) {
       mapList.value = currentMapFile;
@@ -957,6 +958,7 @@ async function init() {
     status.textContent = 'Started a new map.';
   });
 
+  let fitToContent = () => {};
   const viewport = document.getElementById('map-viewport');
   const ZOOM_STEP = 1.5;
   const ZOOM_MARGIN = 16;
@@ -978,6 +980,19 @@ async function init() {
     const view = viewport.getBoundingClientRect();
     viewport.scrollLeft += bounds.left + fx * bounds.width - (event ? event.clientX : view.left + view.width / 2);
     viewport.scrollTop += bounds.top + fy * bounds.height - (event ? event.clientY : view.top + view.height / 2);
+  };
+  fitToContent = () => {
+    if (!rooms.length) return;
+    const minX = Math.min(...rooms.map(r => r.x)) * TILE;
+    const minY = Math.min(...rooms.map(r => r.y)) * TILE;
+    const maxX = Math.max(...rooms.map(r => r.x + r.width)) * TILE;
+    const maxY = Math.max(...rooms.map(r => r.y + r.height)) * TILE;
+    const fit = Math.min(
+      (viewport.clientWidth - ZOOM_MARGIN) / (maxX - minX),
+      (viewport.clientHeight - ZOOM_MARGIN) / (maxY - minY));
+    applyZoom(fit);
+    viewport.scrollLeft = (minX + maxX) / 2 * zoom - viewport.clientWidth / 2;
+    viewport.scrollTop = (minY + maxY) / 2 * zoom - viewport.clientHeight / 2;
   };
   const zoomOptions = document.getElementById('zoom-options');
   const zoomBy = factor => applyZoom(zoom * factor);
