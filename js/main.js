@@ -655,6 +655,7 @@ function validateMapData(data, canvas, itemColors, doorColors) {
         (!poiColors.has(poi.color) && poi.color !== 'black') ||
         !pointInPolygon(room.x + poi.x, room.y + poi.y, points)) invalid();
       const color = poi.color === 'black' ? getDefaultPoiColor(itemColors) : poi.color;
+      if (!color || !poiColors.has(color)) invalid();
       return { x: poi.x, y: poi.y, type: poi.type, color };
     });
     const doors = room.doors.map(door => {
