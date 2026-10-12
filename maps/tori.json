@@ -10,57 +10,57 @@
   "rooms": [
     {
       "x": 52,
-      "y": 40,
+      "y": 44,
       "width": 9,
       "height": 9,
       "points": [
         {
           "x": 54,
-          "y": 40
+          "y": 44
         },
         {
           "x": 59,
-          "y": 40
+          "y": 44
         },
         {
           "x": 59,
-          "y": 42
+          "y": 46
         },
         {
           "x": 61,
-          "y": 42
+          "y": 46
         },
         {
           "x": 61,
-          "y": 47
+          "y": 51
         },
         {
           "x": 59,
-          "y": 47
+          "y": 51
         },
         {
           "x": 59,
-          "y": 49
+          "y": 53
         },
         {
           "x": 54,
-          "y": 49
+          "y": 53
         },
         {
           "x": 54,
-          "y": 47
+          "y": 51
         },
         {
           "x": 52,
-          "y": 47
+          "y": 51
         },
         {
           "x": 52,
-          "y": 42
+          "y": 46
         },
         {
           "x": 54,
-          "y": 42
+          "y": 46
         }
       ],
       "shape": "polygon",
@@ -108,25 +108,25 @@
     },
     {
       "x": 54,
-      "y": 49,
+      "y": 53,
       "width": 5,
       "height": 5,
       "points": [
         {
           "x": 54,
-          "y": 49
+          "y": 53
         },
         {
           "x": 59,
-          "y": 49
+          "y": 53
         },
         {
           "x": 59,
-          "y": 54
+          "y": 58
         },
         {
           "x": 54,
-          "y": 54
+          "y": 58
         }
       ],
       "shape": "rectangle",
@@ -156,25 +156,25 @@
     },
     {
       "x": 55,
-      "y": 54,
-      "width": 9,
+      "y": 58,
+      "width": 11,
       "height": 3,
       "points": [
         {
           "x": 55,
-          "y": 54
+          "y": 58
         },
         {
-          "x": 64,
-          "y": 54
+          "x": 66,
+          "y": 58
         },
         {
-          "x": 64,
-          "y": 57
+          "x": 66,
+          "y": 61
         },
         {
           "x": 55,
-          "y": 57
+          "y": 61
         }
       ],
       "shape": "rectangle",
@@ -194,7 +194,7 @@
           "color": "none"
         },
         {
-          "x": 9,
+          "x": 11,
           "y": 1.5,
           "orientation": "vertical",
           "color": "none"
@@ -203,26 +203,26 @@
       "obstacles": []
     },
     {
-      "x": 64,
-      "y": 53,
+      "x": 66,
+      "y": 57,
       "width": 5,
       "height": 5,
       "points": [
         {
-          "x": 64,
-          "y": 53
+          "x": 66,
+          "y": 57
         },
         {
-          "x": 69,
-          "y": 53
+          "x": 71,
+          "y": 57
         },
         {
-          "x": 69,
-          "y": 58
+          "x": 71,
+          "y": 62
         },
         {
-          "x": 64,
-          "y": 58
+          "x": 66,
+          "y": 62
         }
       ],
       "shape": "rectangle",
@@ -248,7 +248,7 @@
           "color": "none"
         },
         {
-          "x": 2.5,
+          "x": 1.5,
           "y": 0,
           "orientation": "horizontal",
           "color": "hidden"
@@ -258,25 +258,25 @@
     },
     {
       "x": 62,
-      "y": 48,
-      "width": 5,
-      "height": 5,
+      "y": 51,
+      "width": 6,
+      "height": 6,
       "points": [
         {
           "x": 62,
-          "y": 48
+          "y": 51
         },
         {
-          "x": 67,
-          "y": 48
+          "x": 68,
+          "y": 51
         },
         {
-          "x": 67,
-          "y": 53
+          "x": 68,
+          "y": 57
         },
         {
           "x": 62,
-          "y": 53
+          "y": 57
         }
       ],
       "shape": "rectangle",
@@ -290,14 +290,14 @@
       ],
       "doors": [
         {
-          "x": 4.5,
-          "y": 5,
+          "x": 2.5,
+          "y": 0,
           "orientation": "horizontal",
           "color": "rainbow"
         },
         {
-          "x": 2.5,
-          "y": 0,
+          "x": 5.5,
+          "y": 6,
           "orientation": "horizontal",
           "color": "rainbow"
         }
@@ -306,25 +306,25 @@
     },
     {
       "x": 61,
-      "y": 42,
+      "y": 46,
       "width": 5,
       "height": 5,
       "points": [
         {
           "x": 61,
-          "y": 42
+          "y": 46
         },
         {
           "x": 66,
-          "y": 42
+          "y": 46
         },
         {
           "x": 66,
-          "y": 47
+          "y": 51
         },
         {
           "x": 61,
-          "y": 47
+          "y": 51
         }
       ],
       "shape": "rectangle",
@@ -397,58 +397,58 @@
       ]
     },
     {
-      "x": 69,
-      "y": 51,
+      "x": 71,
+      "y": 55,
       "width": 9,
       "height": 9,
       "points": [
         {
-          "x": 69,
-          "y": 53
-        },
-        {
           "x": 71,
-          "y": 53
+          "y": 57
         },
         {
-          "x": 71,
-          "y": 51
+          "x": 73,
+          "y": 57
         },
         {
-          "x": 76,
-          "y": 51
-        },
-        {
-          "x": 76,
-          "y": 53
+          "x": 73,
+          "y": 55
         },
         {
           "x": 78,
-          "y": 53
+          "y": 55
         },
         {
           "x": 78,
-          "y": 58
+          "y": 57
         },
         {
-          "x": 76,
-          "y": 58
+          "x": 80,
+          "y": 57
         },
         {
-          "x": 76,
-          "y": 60
+          "x": 80,
+          "y": 62
+        },
+        {
+          "x": 78,
+          "y": 62
+        },
+        {
+          "x": 78,
+          "y": 64
+        },
+        {
+          "x": 73,
+          "y": 64
+        },
+        {
+          "x": 73,
+          "y": 62
         },
         {
           "x": 71,
-          "y": 60
-        },
-        {
-          "x": 71,
-          "y": 58
-        },
-        {
-          "x": 69,
-          "y": 58
+          "y": 62
         }
       ],
       "shape": "polygon",
@@ -489,26 +489,26 @@
       "obstacles": []
     },
     {
-      "x": 78,
-      "y": 53,
+      "x": 80,
+      "y": 57,
       "width": 5,
       "height": 5,
       "points": [
         {
-          "x": 78,
-          "y": 53
+          "x": 80,
+          "y": 57
         },
         {
-          "x": 83,
-          "y": 53
+          "x": 85,
+          "y": 57
         },
         {
-          "x": 83,
-          "y": 58
+          "x": 85,
+          "y": 62
         },
         {
-          "x": 78,
-          "y": 58
+          "x": 80,
+          "y": 62
         }
       ],
       "shape": "rectangle",
@@ -537,26 +537,26 @@
       "obstacles": []
     },
     {
-      "x": 76,
-      "y": 46,
+      "x": 78,
+      "y": 50,
       "width": 7,
       "height": 7,
       "points": [
         {
-          "x": 76,
-          "y": 46
+          "x": 78,
+          "y": 50
         },
         {
-          "x": 83,
-          "y": 46
+          "x": 85,
+          "y": 50
         },
         {
-          "x": 83,
-          "y": 53
+          "x": 85,
+          "y": 57
         },
         {
-          "x": 76,
-          "y": 53
+          "x": 78,
+          "y": 57
         }
       ],
       "shape": "rectangle",
@@ -578,26 +578,26 @@
       "obstacles": []
     },
     {
-      "x": 71,
-      "y": 46,
+      "x": 73,
+      "y": 50,
       "width": 5,
       "height": 5,
       "points": [
         {
-          "x": 71,
-          "y": 46
+          "x": 73,
+          "y": 50
         },
         {
-          "x": 76,
-          "y": 46
+          "x": 78,
+          "y": 50
         },
         {
-          "x": 76,
-          "y": 51
+          "x": 78,
+          "y": 55
         },
         {
-          "x": 71,
-          "y": 51
+          "x": 73,
+          "y": 55
         }
       ],
       "shape": "rectangle",
@@ -627,25 +627,25 @@
     },
     {
       "x": 66,
-      "y": 43,
+      "y": 47,
       "width": 11,
       "height": 3,
       "points": [
         {
           "x": 66,
-          "y": 43
+          "y": 47
         },
         {
           "x": 77,
-          "y": 43
+          "y": 47
         },
         {
           "x": 77,
-          "y": 46
+          "y": 50
         },
         {
           "x": 66,
-          "y": 46
+          "y": 50
         }
       ],
       "shape": "rectangle",
@@ -662,6 +662,1256 @@
           "y": 1.5,
           "orientation": "vertical",
           "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 54,
+      "y": 39,
+      "width": 5,
+      "height": 5,
+      "points": [
+        {
+          "x": 54,
+          "y": 39
+        },
+        {
+          "x": 59,
+          "y": 39
+        },
+        {
+          "x": 59,
+          "y": 44
+        },
+        {
+          "x": 54,
+          "y": 44
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 2.5,
+          "y": 2.5,
+          "type": "key",
+          "color": "green"
+        }
+      ],
+      "doors": [
+        {
+          "x": 2.5,
+          "y": 5,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 2.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "rainbow"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 54,
+      "y": 34,
+      "width": 5,
+      "height": 5,
+      "points": [
+        {
+          "x": 54,
+          "y": 34
+        },
+        {
+          "x": 59,
+          "y": 34
+        },
+        {
+          "x": 59,
+          "y": 39
+        },
+        {
+          "x": 54,
+          "y": 39
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [],
+      "doors": [
+        {
+          "x": 2.5,
+          "y": 5,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 2.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 52,
+      "y": 25,
+      "width": 9,
+      "height": 9,
+      "points": [
+        {
+          "x": 52,
+          "y": 32
+        },
+        {
+          "x": 54,
+          "y": 32
+        },
+        {
+          "x": 54,
+          "y": 34
+        },
+        {
+          "x": 59,
+          "y": 34
+        },
+        {
+          "x": 59,
+          "y": 32
+        },
+        {
+          "x": 61,
+          "y": 32
+        },
+        {
+          "x": 61,
+          "y": 27
+        },
+        {
+          "x": 59,
+          "y": 27
+        },
+        {
+          "x": 59,
+          "y": 25
+        },
+        {
+          "x": 54,
+          "y": 25
+        },
+        {
+          "x": 54,
+          "y": 27
+        },
+        {
+          "x": 52,
+          "y": 27
+        }
+      ],
+      "shape": "polygon",
+      "pois": [
+        {
+          "x": 4.5,
+          "y": 4.5,
+          "type": "ladder",
+          "color": "green"
+        }
+      ],
+      "doors": [
+        {
+          "x": 4.5,
+          "y": 9,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 0,
+          "y": 4.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 4.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 9,
+          "y": 4.5,
+          "orientation": "vertical",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 61,
+      "y": 27,
+      "width": 5,
+      "height": 5,
+      "points": [
+        {
+          "x": 61,
+          "y": 27
+        },
+        {
+          "x": 66,
+          "y": 27
+        },
+        {
+          "x": 66,
+          "y": 32
+        },
+        {
+          "x": 61,
+          "y": 32
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 3.5,
+          "y": 4.5,
+          "type": "orb",
+          "color": "green"
+        }
+      ],
+      "doors": [
+        {
+          "x": 0,
+          "y": 2.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 5,
+          "y": 2.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 3.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 66,
+      "y": 28,
+      "width": 11,
+      "height": 3,
+      "points": [
+        {
+          "x": 66,
+          "y": 28
+        },
+        {
+          "x": 77,
+          "y": 28
+        },
+        {
+          "x": 77,
+          "y": 31
+        },
+        {
+          "x": 66,
+          "y": 31
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 7.5,
+          "y": 2.5,
+          "type": "potion",
+          "color": "green"
+        },
+        {
+          "x": 3.5,
+          "y": 0.5,
+          "type": "potion",
+          "color": "green"
+        }
+      ],
+      "doors": [
+        {
+          "x": 0,
+          "y": 1.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 9.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 73,
+      "y": 23,
+      "width": 5,
+      "height": 5,
+      "points": [
+        {
+          "x": 73,
+          "y": 23
+        },
+        {
+          "x": 78,
+          "y": 23
+        },
+        {
+          "x": 78,
+          "y": 28
+        },
+        {
+          "x": 73,
+          "y": 28
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 2.5,
+          "y": 2.5,
+          "type": "orb",
+          "color": "green"
+        }
+      ],
+      "doors": [
+        {
+          "x": 2.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 2.5,
+          "y": 5,
+          "orientation": "horizontal",
+          "color": "rainbow"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 71,
+      "y": 14,
+      "width": 9,
+      "height": 9,
+      "points": [
+        {
+          "x": 71,
+          "y": 21
+        },
+        {
+          "x": 73,
+          "y": 21
+        },
+        {
+          "x": 73,
+          "y": 23
+        },
+        {
+          "x": 78,
+          "y": 23
+        },
+        {
+          "x": 78,
+          "y": 21
+        },
+        {
+          "x": 80,
+          "y": 21
+        },
+        {
+          "x": 80,
+          "y": 16
+        },
+        {
+          "x": 78,
+          "y": 16
+        },
+        {
+          "x": 78,
+          "y": 14
+        },
+        {
+          "x": 73,
+          "y": 14
+        },
+        {
+          "x": 73,
+          "y": 16
+        },
+        {
+          "x": 71,
+          "y": 16
+        }
+      ],
+      "shape": "polygon",
+      "pois": [
+        {
+          "x": 8.5,
+          "y": 2.5,
+          "type": "ladder",
+          "color": "green"
+        },
+        {
+          "x": 2.5,
+          "y": 0.5,
+          "type": "key",
+          "color": "green"
+        }
+      ],
+      "doors": [
+        {
+          "x": 4.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "green"
+        },
+        {
+          "x": 9,
+          "y": 4.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 4.5,
+          "y": 9,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 0,
+          "y": 4.5,
+          "orientation": "vertical",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 80,
+      "y": 16,
+      "width": 5,
+      "height": 5,
+      "points": [
+        {
+          "x": 80,
+          "y": 16
+        },
+        {
+          "x": 85,
+          "y": 16
+        },
+        {
+          "x": 85,
+          "y": 21
+        },
+        {
+          "x": 80,
+          "y": 21
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 2.5,
+          "y": 2.5,
+          "type": "orb",
+          "color": "green"
+        }
+      ],
+      "doors": [
+        {
+          "x": 0,
+          "y": 2.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 3.5,
+          "y": 5,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 78,
+      "y": 21,
+      "width": 7,
+      "height": 7,
+      "points": [
+        {
+          "x": 78,
+          "y": 21
+        },
+        {
+          "x": 85,
+          "y": 21
+        },
+        {
+          "x": 85,
+          "y": 28
+        },
+        {
+          "x": 78,
+          "y": 28
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [],
+      "doors": [
+        {
+          "x": 5.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "rainbow"
+        },
+        {
+          "x": 5.5,
+          "y": 7,
+          "orientation": "horizontal",
+          "color": "white"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 66,
+      "y": 16,
+      "width": 5,
+      "height": 5,
+      "points": [
+        {
+          "x": 66,
+          "y": 16
+        },
+        {
+          "x": 71,
+          "y": 16
+        },
+        {
+          "x": 71,
+          "y": 21
+        },
+        {
+          "x": 66,
+          "y": 21
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [],
+      "doors": [
+        {
+          "x": 0,
+          "y": 2.5,
+          "orientation": "vertical",
+          "color": "rainbow"
+        },
+        {
+          "x": 5,
+          "y": 2.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 0.5,
+          "y": 5,
+          "orientation": "horizontal",
+          "color": "hidden"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 55,
+      "y": 17,
+      "width": 11,
+      "height": 3,
+      "points": [
+        {
+          "x": 55,
+          "y": 17
+        },
+        {
+          "x": 66,
+          "y": 17
+        },
+        {
+          "x": 66,
+          "y": 20
+        },
+        {
+          "x": 55,
+          "y": 20
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [],
+      "doors": [
+        {
+          "x": 11,
+          "y": 1.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 1.5,
+          "y": 3,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 54,
+      "y": 20,
+      "width": 5,
+      "height": 5,
+      "points": [
+        {
+          "x": 54,
+          "y": 20
+        },
+        {
+          "x": 59,
+          "y": 20
+        },
+        {
+          "x": 59,
+          "y": 25
+        },
+        {
+          "x": 54,
+          "y": 25
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 2.5,
+          "y": 2.5,
+          "type": "key",
+          "color": "green"
+        }
+      ],
+      "doors": [
+        {
+          "x": 2.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 2.5,
+          "y": 5,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 64,
+      "y": 21,
+      "width": 6,
+      "height": 6,
+      "points": [
+        {
+          "x": 64,
+          "y": 21
+        },
+        {
+          "x": 70,
+          "y": 21
+        },
+        {
+          "x": 70,
+          "y": 27
+        },
+        {
+          "x": 64,
+          "y": 27
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 0.5,
+          "y": 0.5,
+          "type": "weapon",
+          "color": "green"
+        }
+      ],
+      "doors": [
+        {
+          "x": 0.5,
+          "y": 6,
+          "orientation": "horizontal",
+          "color": "rainbow"
+        },
+        {
+          "x": 2.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "rainbow"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 49,
+      "y": 28,
+      "width": 3,
+      "height": 11,
+      "points": [
+        {
+          "x": 49,
+          "y": 28
+        },
+        {
+          "x": 52,
+          "y": 28
+        },
+        {
+          "x": 52,
+          "y": 39
+        },
+        {
+          "x": 49,
+          "y": 39
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 1.5,
+          "y": 3.5,
+          "type": "apple",
+          "color": "white"
+        }
+      ],
+      "doors": [
+        {
+          "x": 3,
+          "y": 1.5,
+          "orientation": "vertical",
+          "color": "none"
+        },
+        {
+          "x": 1.5,
+          "y": 11,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 49,
+      "y": 39,
+      "width": 3,
+      "height": 11,
+      "points": [
+        {
+          "x": 49,
+          "y": 39
+        },
+        {
+          "x": 52,
+          "y": 39
+        },
+        {
+          "x": 52,
+          "y": 50
+        },
+        {
+          "x": 49,
+          "y": 50
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [],
+      "doors": [
+        {
+          "x": 1.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 3,
+          "y": 9.5,
+          "orientation": "vertical",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 73,
+      "y": 64,
+      "width": 5,
+      "height": 5,
+      "points": [
+        {
+          "x": 73,
+          "y": 64
+        },
+        {
+          "x": 78,
+          "y": 64
+        },
+        {
+          "x": 78,
+          "y": 69
+        },
+        {
+          "x": 73,
+          "y": 69
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [],
+      "doors": [
+        {
+          "x": 2.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 2.5,
+          "y": 5,
+          "orientation": "horizontal",
+          "color": "rainbow"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 72,
+      "y": 69,
+      "width": 7,
+      "height": 7,
+      "points": [
+        {
+          "x": 72,
+          "y": 69
+        },
+        {
+          "x": 79,
+          "y": 69
+        },
+        {
+          "x": 79,
+          "y": 76
+        },
+        {
+          "x": 72,
+          "y": 76
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 6.5,
+          "y": 3.5,
+          "type": "key",
+          "color": "white"
+        }
+      ],
+      "doors": [
+        {
+          "x": 3.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": [
+        {
+          "x": 1,
+          "y": 1,
+          "type": "wall"
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "type": "wall"
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "type": "wall"
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "type": "wall"
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "type": "wall"
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "type": "wall"
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "type": "wall"
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "type": "wall"
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "type": "wall"
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "type": "wall"
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "type": "wall"
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "type": "wall"
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "type": "wall"
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "type": "wall"
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "type": "wall"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "type": "wall"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "type": "wall"
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "type": "wall"
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "type": "wall"
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "type": "wall"
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "type": "wall"
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "type": "wall"
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "type": "wall"
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "type": "wall"
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "type": "wall"
+        }
+      ]
+    },
+    {
+      "x": 82,
+      "y": 39,
+      "width": 3,
+      "height": 11,
+      "points": [
+        {
+          "x": 82,
+          "y": 39
+        },
+        {
+          "x": 85,
+          "y": 39
+        },
+        {
+          "x": 85,
+          "y": 50
+        },
+        {
+          "x": 82,
+          "y": 50
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 0.5,
+          "y": 6.5,
+          "type": "key",
+          "color": "blue"
+        }
+      ],
+      "doors": [
+        {
+          "x": 1.5,
+          "y": 11,
+          "orientation": "horizontal",
+          "color": "white"
+        },
+        {
+          "x": 1.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "white"
+        },
+        {
+          "x": 0,
+          "y": 2.5,
+          "orientation": "vertical",
+          "color": "pink"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 73,
+      "y": 9,
+      "width": 5,
+      "height": 5,
+      "points": [
+        {
+          "x": 73,
+          "y": 9
+        },
+        {
+          "x": 78,
+          "y": 9
+        },
+        {
+          "x": 78,
+          "y": 14
+        },
+        {
+          "x": 73,
+          "y": 14
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [],
+      "doors": [
+        {
+          "x": 2.5,
+          "y": 5,
+          "orientation": "horizontal",
+          "color": "green"
+        },
+        {
+          "x": 2.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "rainbow"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 72,
+      "y": 2,
+      "width": 7,
+      "height": 7,
+      "points": [
+        {
+          "x": 72,
+          "y": 2
+        },
+        {
+          "x": 79,
+          "y": 2
+        },
+        {
+          "x": 79,
+          "y": 9
+        },
+        {
+          "x": 72,
+          "y": 9
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 3.5,
+          "y": 0.5,
+          "type": "key",
+          "color": "white"
+        }
+      ],
+      "doors": [
+        {
+          "x": 3.5,
+          "y": 7,
+          "orientation": "horizontal",
+          "color": "none"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 82,
+      "y": 28,
+      "width": 3,
+      "height": 11,
+      "points": [
+        {
+          "x": 82,
+          "y": 28
+        },
+        {
+          "x": 85,
+          "y": 28
+        },
+        {
+          "x": 85,
+          "y": 39
+        },
+        {
+          "x": 82,
+          "y": 39
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 1.5,
+          "y": 4.5,
+          "type": "orb",
+          "color": "white"
+        },
+        {
+          "x": 0.5,
+          "y": 4.5,
+          "type": "key",
+          "color": "pink"
+        }
+      ],
+      "doors": [
+        {
+          "x": 1.5,
+          "y": 0,
+          "orientation": "horizontal",
+          "color": "white"
+        },
+        {
+          "x": 1.5,
+          "y": 11,
+          "orientation": "horizontal",
+          "color": "white"
+        },
+        {
+          "x": 0,
+          "y": 7.5,
+          "orientation": "vertical",
+          "color": "blue"
+        }
+      ],
+      "obstacles": []
+    },
+    {
+      "x": 75,
+      "y": 35,
+      "width": 7,
+      "height": 7,
+      "points": [
+        {
+          "x": 75,
+          "y": 35
+        },
+        {
+          "x": 82,
+          "y": 35
+        },
+        {
+          "x": 82,
+          "y": 42
+        },
+        {
+          "x": 75,
+          "y": 42
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [],
+      "doors": [
+        {
+          "x": 7,
+          "y": 0.5,
+          "orientation": "vertical",
+          "color": "blue"
+        },
+        {
+          "x": 7,
+          "y": 6.5,
+          "orientation": "vertical",
+          "color": "pink"
+        },
+        {
+          "x": 0,
+          "y": 3.5,
+          "orientation": "vertical",
+          "color": "green"
         }
       ],
       "obstacles": []
