@@ -1606,40 +1606,40 @@
     },
     {
       "x": 51,
-      "y": 26,
+      "y": 25,
       "width": 7,
       "height": 5,
       "points": [
         {
           "x": 51,
-          "y": 26
+          "y": 25
         },
         {
           "x": 58,
-          "y": 26
+          "y": 25
         },
         {
           "x": 58,
-          "y": 31
+          "y": 30
         },
         {
           "x": 51,
-          "y": 31
+          "y": 30
         }
       ],
       "shape": "rectangle",
       "pois": [],
       "doors": [
         {
-          "x": 0,
-          "y": 3.5,
-          "orientation": "vertical",
-          "color": "none"
-        },
-        {
           "x": 4.5,
           "y": 0,
           "orientation": "horizontal",
+          "color": "none"
+        },
+        {
+          "x": 0,
+          "y": 4.5,
+          "orientation": "vertical",
           "color": "none"
         }
       ],
@@ -1647,33 +1647,33 @@
     },
     {
       "x": 47,
-      "y": 15,
+      "y": 14,
       "width": 11,
       "height": 11,
       "points": [
         {
           "x": 47,
-          "y": 26
+          "y": 25
         },
         {
           "x": 58,
-          "y": 26
+          "y": 25
         },
         {
           "x": 58,
-          "y": 23
+          "y": 22
         },
         {
           "x": 50,
-          "y": 23
+          "y": 22
         },
         {
           "x": 50,
-          "y": 15
+          "y": 14
         },
         {
           "x": 47,
-          "y": 15
+          "y": 14
         }
       ],
       "shape": "polygon",
@@ -1735,16 +1735,16 @@
       ],
       "doors": [
         {
-          "x": 0,
-          "y": 5.5,
-          "orientation": "vertical",
-          "color": "none"
-        },
-        {
           "x": 3,
           "y": 2.5,
           "orientation": "vertical",
           "color": "hidden"
+        },
+        {
+          "x": 0,
+          "y": 4.5,
+          "orientation": "vertical",
+          "color": "none"
         }
       ],
       "obstacles": []
@@ -2004,7 +2004,14 @@
         }
       ],
       "shape": "polygon",
-      "pois": [],
+      "pois": [
+        {
+          "x": 4.5,
+          "y": 4.5,
+          "type": "ladder",
+          "color": "blue"
+        }
+      ],
       "doors": [
         {
           "x": 2,
@@ -3078,6 +3085,179 @@
         }
       ],
       "obstacles": []
+    },
+    {
+      "x": 51,
+      "y": 30,
+      "width": 11,
+      "height": 3,
+      "points": [
+        {
+          "x": 51,
+          "y": 30
+        },
+        {
+          "x": 62,
+          "y": 30
+        },
+        {
+          "x": 62,
+          "y": 33
+        },
+        {
+          "x": 51,
+          "y": 33
+        }
+      ],
+      "shape": "rectangle",
+      "pois": [
+        {
+          "x": 0.5,
+          "y": 1.5,
+          "type": "weapon",
+          "color": "blue"
+        }
+      ],
+      "doors": [
+        {
+          "x": 11,
+          "y": 1.5,
+          "orientation": "vertical",
+          "color": "none"
+        }
+      ],
+      "obstacles": [
+        {
+          "x": 8,
+          "y": 2,
+          "type": "spikes"
+        },
+        {
+          "x": 8,
+          "y": 1,
+          "type": "spikes"
+        },
+        {
+          "x": 8,
+          "y": 0,
+          "type": "spikes"
+        },
+        {
+          "x": 7,
+          "y": 0,
+          "type": "spikes"
+        },
+        {
+          "x": 7,
+          "y": 1,
+          "type": "spikes"
+        },
+        {
+          "x": 7,
+          "y": 2,
+          "type": "spikes"
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "type": "spikes"
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "type": "spikes"
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "type": "spikes"
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "type": "spikes"
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "type": "spikes"
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "type": "spikes"
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "type": "spikes"
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "type": "spikes"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "type": "spikes"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "type": "spikes"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "type": "spikes"
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "type": "spikes"
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "type": "spikes"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "type": "spikes"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "type": "spikes"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "type": "spikes"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "type": "spikes"
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "type": "spikes"
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "type": "spikes"
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "type": "spikes"
+        }
+      ]
     }
   ]
 }
