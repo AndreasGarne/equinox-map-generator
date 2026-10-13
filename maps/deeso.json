@@ -1,0 +1,11 @@
+{
+  "format": "equinox-map",
+  "version": 1,
+  "name": "Deeso",
+  "grid": {
+    "width": 3840,
+    "height": 2560,
+    "tileSize": 32
+  },
+  "rooms": []
+}
