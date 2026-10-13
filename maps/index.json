@@ -7,6 +7,10 @@
     {
       "name": "Tori",
       "file": "tori.json"
+    },
+    {
+      "name": "Deeso",
+      "file": "deeso.json"
     }
   ]
 }
