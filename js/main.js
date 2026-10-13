@@ -1,4 +1,5 @@
 const TILE = 32;
+const GRID_BACKGROUND_COLOR = '#888';
 const LEGACY_BLACK_COLOR = 'black';
 const POI_BADGE_FILL = '#273449';
 const POI_BADGE_STROKE = '#f8fafc';
@@ -12,7 +13,7 @@ const POI_TYPES = {
   ladder: { letter: 'L', color: '#c4a484' },
   magic: { letter: 'M', color: '#3b82f6' }
 };
-const OBSTACLE_TYPES = ['spikes', 'wall'];
+const OBSTACLE_TYPES = ['spikes', 'wall', 'hole'];
 const rooms = [];
 let selectedRoom = null;
 let interaction = null;
@@ -28,7 +29,7 @@ const TOOL_HELP = {
   complex: 'Click each corner on a grid intersection in order. Edges must be horizontal or vertical; then finish the shape.',
   poi: 'Choose a type and colour, then click a tile inside a room to place a point of interest.',
   door: 'Choose a colour, then click a room boundary to place a door.',
-  obstacle: 'Choose spikes or wall, then click a tile inside a room to place it. Clicking an occupied tile replaces it.',
+  obstacle: 'Choose spikes, wall or hole, then click a tile inside a room to place it. Clicking an occupied tile replaces it.',
   pan: 'Drag to scroll the map.',
   zoom: 'Use the + and - buttons, or pinch to zoom on a touch screen.'
 };
@@ -47,7 +48,7 @@ async function loadConfig() {
 
 function drawGrid(ctx, w, h, preview = null, itemColors = {}) {
   ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = '#888';
+  ctx.fillStyle = GRID_BACKGROUND_COLOR;
   ctx.fillRect(0, 0, w, h);
 
   for (const room of rooms) drawRoom(ctx, room, false, room === selectedRoom);
@@ -314,6 +315,9 @@ function drawObstacle(ctx, room, obstacle, isSelected) {
     ctx.moveTo(x + (TILE * 3) / 4, y + TILE / 2);
     ctx.lineTo(x + (TILE * 3) / 4, y + TILE);
     ctx.stroke();
+  } else if (obstacle.type === 'hole') {
+    ctx.fillStyle = GRID_BACKGROUND_COLOR;
+    ctx.fillRect(x + 1, y + 1, TILE - 1, TILE - 1);
   } else {
     ctx.fillStyle = '#e5e7eb';
     ctx.strokeStyle = '#374151';
