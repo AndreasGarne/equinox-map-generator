@@ -4,7 +4,7 @@
   "name": "Tori",
   "grid": {
     "width": 3840,
-    "height": 2560,
+    "height": 3840,
     "tileSize": 32
   },
   "rooms": [
