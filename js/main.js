@@ -13,7 +13,8 @@ const POI_TYPES = {
   ladder: { letter: 'L', color: '#c4a484' },
   magic: { letter: 'M', color: '#3b82f6' }
 };
-const OBSTACLE_TYPES = ['spikes', 'wall', 'hole'];
+const OBSTACLE_TYPES = ['spikes', 'wall', 'hole', 'one-way-wall'];
+const OBSTACLE_DIRECTIONS = ['up', 'right', 'down', 'left'];
 const rooms = [];
 let selectedRoom = null;
 let interaction = null;
@@ -29,7 +30,7 @@ const TOOL_HELP = {
   complex: 'Click each corner on a grid intersection in order. Edges must be horizontal or vertical; then finish the shape.',
   poi: 'Choose a type and colour, then click a tile inside a room to place a point of interest.',
   door: 'Choose a colour, then click a room boundary to place a door.',
-  obstacle: 'Choose spikes, wall or hole, then click a tile inside a room to place it. Clicking an occupied tile replaces it.',
+  obstacle: 'Choose spikes, wall, hole or one-way wall, then click a tile inside a room to place it. Clicking an occupied tile replaces it.',
   pan: 'Drag to scroll the map.',
   zoom: 'Use the + and - buttons, or pinch to zoom on a touch screen.'
 };
@@ -300,7 +301,7 @@ function drawPoi(ctx, poi, x, y, color) {
 function drawObstacle(ctx, room, obstacle, isSelected) {
   const x = (room.x + obstacle.x) * TILE;
   const y = (room.y + obstacle.y) * TILE;
-  if (obstacle.type === 'wall') {
+  if (obstacle.type === 'wall' || obstacle.type === 'one-way-wall') {
     ctx.fillStyle = '#44403c';
     ctx.fillRect(x + 1, y + 1, TILE - 1, TILE - 1);
     ctx.strokeStyle = '#78716c';
@@ -315,6 +316,35 @@ function drawObstacle(ctx, room, obstacle, isSelected) {
     ctx.moveTo(x + (TILE * 3) / 4, y + TILE / 2);
     ctx.lineTo(x + (TILE * 3) / 4, y + TILE);
     ctx.stroke();
+
+    if (obstacle.type === 'one-way-wall') {
+      const direction = obstacle.direction || 'up';
+      ctx.save();
+      ctx.translate(x + TILE / 2, y + TILE / 2);
+      let angle = 0;
+      if (direction === 'right') angle = Math.PI / 2;
+      else if (direction === 'down') angle = Math.PI;
+      else if (direction === 'left') angle = -Math.PI / 2;
+      ctx.rotate(angle);
+
+      ctx.beginPath();
+      ctx.moveTo(0, -10);
+      ctx.lineTo(7, -2);
+      ctx.lineTo(3, -2);
+      ctx.lineTo(3, 9);
+      ctx.lineTo(-3, 9);
+      ctx.lineTo(-3, -2);
+      ctx.lineTo(-7, -2);
+      ctx.closePath();
+
+      ctx.fillStyle = '#facc15';
+      ctx.fill();
+      ctx.strokeStyle = '#1c1917';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.restore();
+    }
   } else if (obstacle.type === 'hole') {
     ctx.fillStyle = GRID_BACKGROUND_COLOR;
     ctx.fillRect(x + 1, y + 1, TILE - 1, TILE - 1);
@@ -679,8 +709,13 @@ function validateMapData(data, canvas, itemColors, doorColors) {
       if (!obstacle || typeof obstacle !== 'object' || Array.isArray(obstacle) ||
         !Number.isInteger(obstacle.x) || !Number.isInteger(obstacle.y) ||
         !OBSTACLE_TYPES.includes(obstacle.type) ||
+        (obstacle.direction !== undefined && !OBSTACLE_DIRECTIONS.includes(obstacle.direction)) ||
         !pointInPolygon(room.x + obstacle.x + 0.5, room.y + obstacle.y + 0.5, points)) invalid();
-      return { x: obstacle.x, y: obstacle.y, type: obstacle.type };
+      const loaded = { x: obstacle.x, y: obstacle.y, type: obstacle.type };
+      if (obstacle.type === 'one-way-wall') {
+        loaded.direction = obstacle.direction || 'up';
+      }
+      return loaded;
     });
     return {
       x: room.x,
@@ -714,6 +749,9 @@ function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorCo
   const poiTypeInput = document.getElementById('poi-type');
   const poiColorInput = document.getElementById('poi-color');
   const doorColorInput = document.getElementById('door-color');
+  const obstacleTypeInput = document.getElementById('obstacle-type');
+  const obstacleDirectionInput = document.getElementById('obstacle-direction');
+  const obstacleDirectionOptions = document.getElementById('obstacle-direction-options');
   for (const button of document.querySelectorAll('[data-tool]')) {
     const active = button.dataset.tool === tool;
     button.setAttribute('aria-pressed', String(active));
@@ -729,7 +767,14 @@ function updateRoomControls(itemColors, doorColors = window.equinoxConfig.doorCo
   document.getElementById('cancel-shape').disabled = tool !== 'complex';
   document.getElementById('delete-selected').disabled = !selectedRoom;
   if (selectedPoi) poiTypeInput.value = selectedPoi.type;
-  if (selectedObstacle) document.getElementById('obstacle-type').value = selectedObstacle.type;
+  if (selectedObstacle) {
+    obstacleTypeInput.value = selectedObstacle.type;
+    if (selectedObstacle.type === 'one-way-wall') {
+      obstacleDirectionInput.value = selectedObstacle.direction || 'up';
+    }
+  }
+  const currentObstacleType = selectedObstacle ? selectedObstacle.type : obstacleTypeInput.value;
+  obstacleDirectionOptions.hidden = currentObstacleType !== 'one-way-wall';
   const type = selectedPoi?.type || poiTypeInput.value;
   const colors = Object.fromEntries(Object.entries(itemColors)
     .filter(([name]) => name !== LEGACY_BLACK_COLOR));
@@ -796,9 +841,21 @@ async function init() {
     updateRoomControls(config.itemColors);
     redraw();
   });
-  document.getElementById('obstacle-type').addEventListener('change', event => {
+  const obstacleTypeInput = document.getElementById('obstacle-type');
+  const obstacleDirectionInput = document.getElementById('obstacle-direction');
+  obstacleTypeInput.addEventListener('change', event => {
     if (selectedObstacle) {
       selectedObstacle.type = event.target.value;
+      if (selectedObstacle.type === 'one-way-wall' && !selectedObstacle.direction) {
+        selectedObstacle.direction = obstacleDirectionInput.value || 'up';
+      }
+      redraw();
+    }
+    updateRoomControls(config.itemColors);
+  });
+  obstacleDirectionInput.addEventListener('change', event => {
+    if (selectedObstacle && selectedObstacle.type === 'one-way-wall') {
+      selectedObstacle.direction = event.target.value;
       redraw();
     }
   });
@@ -1175,10 +1232,18 @@ async function init() {
       const x = cell.x - room.x;
       const y = cell.y - room.y;
       room.obstacles ||= [];
-      const type = document.getElementById('obstacle-type').value;
+      const type = obstacleTypeInput.value;
+      const direction = obstacleDirectionInput.value || 'up';
       const existing = room.obstacles.find(item => item.x === x && item.y === y);
-      if (existing) existing.type = type;
-      else room.obstacles.push({ x, y, type });
+      if (existing) {
+        existing.type = type;
+        if (type === 'one-way-wall') existing.direction = direction;
+        else delete existing.direction;
+      } else {
+        const item = { x, y, type };
+        if (type === 'one-way-wall') item.direction = direction;
+        room.obstacles.push(item);
+      }
       selectedRoom = room;
       updateRoomControls(config.itemColors);
       redraw();
