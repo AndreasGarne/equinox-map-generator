@@ -56,7 +56,17 @@
             <option value="spikes">Spikes</option>
             <option value="wall">Wall</option>
             <option value="hole">Hole</option>
+            <option value="one-way-wall">One-way wall</option>
           </select>
+          <div id="obstacle-direction-options" class="options-group" hidden>
+            <label for="obstacle-direction">Direction</label>
+            <select id="obstacle-direction">
+              <option value="up">Up (&uarr;)</option>
+              <option value="right">Right (&rarr;)</option>
+              <option value="down">Down (&darr;)</option>
+              <option value="left">Left (&larr;)</option>
+            </select>
+          </div>
         </div>
         <p id="rainbow-door-note" hidden></p>
         <button id="delete-selected" type="button" disabled>Delete selected</button>
