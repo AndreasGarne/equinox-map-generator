@@ -1,0 +1,11 @@
+{
+  "format": "equinox-map",
+  "version": 1,
+  "name": "Quagmire",
+  "grid": {
+    "width": 3840,
+    "height": 3840,
+    "tileSize": 32
+  },
+  "rooms": []
+}
