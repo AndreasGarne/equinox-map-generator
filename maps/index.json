@@ -15,6 +15,10 @@
     {
       "name": "Atlena",
       "file": "atlena.json"
+    },
+    {
+      "name": "Quagmire",
+      "file": "quagmire.json"
     }
   ]
 }
